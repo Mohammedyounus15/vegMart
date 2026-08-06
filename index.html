@@ -180,11 +180,12 @@
   .order-actions{display:flex; gap:6px; flex-wrap:wrap;}
   .order-actions button{font-size:11.5px; padding:6px 10px;}
 
-  /* Stats grid for Admin */
-  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:12px; margin-bottom:20px;}
-  .stat-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:14px; text-align:center;}
+  /* Stats Section Styling */
+  .stats-section-title{font-family:'Bitter', serif; font-size:16px; margin:0 0 12px; color:var(--ink);}
+  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:24px;}
+  .stat-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:16px; text-align:center;}
   .stat-card .lbl{font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:700;}
-  .stat-card .val{font-family:'IBM Plex Mono', monospace; font-size:18px; font-weight:700; color:var(--primary); margin:6px 0 2px;}
+  .stat-card .val{font-family:'IBM Plex Mono', monospace; font-size:20px; font-weight:700; color:var(--primary); margin:6px 0 2px;}
   .stat-card .subval{font-size:12px; color:var(--muted);}
   .stat-card.pending .val{color:var(--accent);}
   .stat-card.delivered .val{color:var(--ok);}
@@ -680,20 +681,43 @@ function renderAdmin(){
     return;
   }
   const newCount = orders.filter(o=>o.status==='new').length;
-  const stats = calcStats();
 
   let html = `
     <div class="section-head">
       <div>
         <h2>Owner dashboard</h2>
-        <p>Manage stock and track incoming orders.</p>
+        <p>Manage stock, track incoming orders, and view sales analytics.</p>
       </div>
     </div>
 
-    <!-- Admin-Only Analytics Summary -->
+    <div class="admin-tabs">
+      <button data-tab="orders" class="${adminTab==='orders'?'active':''}">Orders ${newCount>0?`<span class="badge-count">${newCount} new</span>`:''}</button>
+      <button data-tab="analytics" class="${adminTab==='analytics'?'active':''}">Analytics</button>
+      <button data-tab="inventory" class="${adminTab==='inventory'?'active':''}">Inventory</button>
+      <button data-tab="settings" class="${adminTab==='settings'?'active':''}">Settings</button>
+    </div>
+    <div id="adminBody"></div>
+  `;
+  document.getElementById('app').innerHTML = html;
+  document.querySelectorAll('.admin-tabs button').forEach(b=>{
+    b.addEventListener('click', ()=>{ adminTab=b.dataset.tab; renderAdmin(); });
+  });
+
+  if(adminTab==='orders') renderAdminOrders();
+  else if(adminTab==='analytics') renderAdminAnalytics();
+  else if(adminTab==='inventory') renderAdminInventory();
+  else renderAdminSettings();
+}
+
+function renderAdminAnalytics(){
+  const el = document.getElementById('adminBody');
+  const stats = calcStats();
+
+  el.innerHTML = `
+    <div class="stats-section-title">Revenue Summary</div>
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="lbl">Today</div>
+        <div class="lbl">Today's Revenue</div>
         <div class="val">${fmt(stats.todayRev)}</div>
         <div class="subval">${stats.todayOrders} ${stats.todayOrders===1?'order':'orders'}</div>
       </div>
@@ -707,33 +731,22 @@ function renderAdmin(){
         <div class="val">${fmt(stats.monthRev)}</div>
         <div class="subval">${stats.monthOrders} ${stats.monthOrders===1?'order':'orders'}</div>
       </div>
+    </div>
+
+    <div class="stats-section-title">Order Status Overview</div>
+    <div class="stats-grid">
       <div class="stat-card pending">
-        <div class="lbl">Pending</div>
+        <div class="lbl">Pending Orders</div>
         <div class="val">${stats.pendingOrders}</div>
-        <div class="subval">Action needed</div>
+        <div class="subval">Needs packing / delivery</div>
       </div>
       <div class="stat-card delivered">
-        <div class="lbl">Delivered</div>
+        <div class="lbl">Delivered Orders</div>
         <div class="val">${stats.deliveredOrders}</div>
-        <div class="subval">Completed</div>
+        <div class="subval">Successfully completed</div>
       </div>
     </div>
-
-    <div class="admin-tabs">
-      <button data-tab="orders" class="${adminTab==='orders'?'active':''}">Orders ${newCount>0?`<span class="badge-count">${newCount} new</span>`:''}</button>
-      <button data-tab="inventory" class="${adminTab==='inventory'?'active':''}">Inventory</button>
-      <button data-tab="settings" class="${adminTab==='settings'?'active':''}">Settings</button>
-    </div>
-    <div id="adminBody"></div>
   `;
-  document.getElementById('app').innerHTML = html;
-  document.querySelectorAll('.admin-tabs button').forEach(b=>{
-    b.addEventListener('click', ()=>{ adminTab=b.dataset.tab; renderAdmin(); });
-  });
-
-  if(adminTab==='orders') renderAdminOrders();
-  else if(adminTab==='inventory') renderAdminInventory();
-  else renderAdminSettings();
 }
 
 function renderPinGate(){
