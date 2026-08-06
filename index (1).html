@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VegMart — Fresh, Local, Delivered</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2F5233">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VegMart">
+<style>
+  :root{
+    --bg:#F1F0E4;
+    --ink:#24301F;
+    --primary:#2F5233;
+    --primary-dark:#1E3A22;
+    --accent:#E4572E;
+    --accent-dark:#B93E1D;
+    --accent2:#7B3B5E;
+    --line:#C9C2A8;
+    --card:#FFFDF7;
+    --muted:#6B6A57;
+    --danger:#B93E1D;
+    --ok:#2F5233;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .display{font-family:'Bitter', Georgia, serif;}
+
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:var(--primary);
+    color:#F1F0E4;
+    padding:14px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:3px solid var(--primary-dark);
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand .stamp{
+    width:34px; height:34px; border-radius:50%;
+    border:2px solid #F1F0E4; display:flex; align-items:center; justify-content:center;
+    font-family:'Bitter', serif; font-weight:700; font-size:15px; transform:rotate(-6deg);
+  }
+  .brand h1{font-family:'Bitter', serif; font-size:20px; margin:0; letter-spacing:.3px;}
+  .brand .sub{font-size:11px; opacity:.8; margin-top:1px;}
+  .nav-tabs{display:flex; gap:6px;}
+  .nav-tabs button{
+    background:transparent; border:1px solid rgba(241,240,228,.35);
+    color:#F1F0E4; padding:7px 14px; border-radius:3px; font-size:13px;
+    cursor:pointer; font-family:inherit; transition:background .15s;
+  }
+  .nav-tabs button.active{background:var(--accent); border-color:var(--accent);}
+  .nav-tabs button:hover:not(.active){background:rgba(241,240,228,.12);}
+
+  .wrap{max-width:1000px; margin:0 auto; padding:24px 20px 80px;}
+
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .section-head h2{font-family:'Bitter', serif; font-size:22px; margin:0;}
+  .section-head p{font-size:13px; color:var(--muted); margin:2px 0 0;}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+  .chip{
+    background:var(--card); border:1px solid var(--line); padding:6px 14px;
+    border-radius:20px; font-size:13px; cursor:pointer; color:var(--ink);
+  }
+  .chip.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+  .empty{
+    text-align:center; padding:50px 20px; color:var(--muted); font-size:14px;
+    border:1px dashed var(--line); border-radius:6px; background:var(--card);
+  }
+  .btn{
+    font-family:inherit; border:none; cursor:pointer; border-radius:3px;
+    padding:9px 16px; font-size:13px; font-weight:600; letter-spacing:.2px;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-outline{background:transparent; border:1px solid var(--line); color:var(--ink);}
+  .btn-outline:hover{border-color:var(--ink);}
+  .btn-dark{background:var(--primary); color:#fff;}
+  .btn-dark:hover{background:var(--primary-dark);}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+  input, select, textarea{
+    font-family:inherit; border:1px solid var(--line); border-radius:3px;
+    padding:9px 11px; font-size:14px; background:#fff; color:var(--ink); width:100%;
+  }
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--primary); outline-offset:1px;}
+  label{font-size:12px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;}
+  .field{margin-bottom:14px;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:16px;}
+  .veg-card{
+    background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:14px; position:relative; overflow:hidden;
+  }
+  .veg-card.out{opacity:.5;}
+  .tag{
+    position:absolute; top:10px; right:-30px; background:var(--accent); color:#fff;
+    transform:rotate(45deg); font-family:'IBM Plex Mono', monospace; font-size:11px;
+    font-weight:600; padding:3px 34px; box-shadow:0 1px 2px rgba(0,0,0,.15);
+  }
+  .veg-emoji{font-size:34px; margin-bottom:6px;}
+  .veg-name{font-family:'Bitter', serif; font-size:16px; margin:0 0 2px;}
+  .veg-cat{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px;}
+  .veg-price{font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:600; color:var(--primary); margin-bottom:10px;}
+  .veg-price span{font-size:11px; color:var(--muted); font-weight:400;}
+  .stepper{display:flex; align-items:center; gap:8px;}
+  .stepper button{
+    width:28px; height:28px; border-radius:3px; border:1px solid var(--line);
+    background:#fff; font-size:16px; cursor:pointer; line-height:1;
+  }
+  .stepper .qty{flex:1; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:14px;}
+  .add-btn{width:100%; margin-top:10px;}
+  .out-label{font-size:12px; color:var(--danger); font-weight:600; text-align:center; padding:8px 0;}
+
+  .cart-fab{
+    position:fixed; bottom:22px; right:22px; z-index:50;
+    background:var(--accent); color:#fff; border:none; border-radius:30px;
+    padding:14px 20px; font-size:14px; font-weight:700; cursor:pointer;
+    box-shadow:0 3px 10px rgba(0,0,0,.25); display:flex; align-items:center; gap:8px;
+  }
+  .cart-badge{background:#fff; color:var(--accent); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px;}
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:60; display:none;}
+  .overlay.show{display:block;}
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:380px; max-width:92vw;
+    background:var(--bg); z-index:61; box-shadow:-4px 0 16px rgba(0,0,0,.2);
+    transform:translateX(100%); transition:transform .25s ease; display:flex; flex-direction:column;
+  }
+  .drawer.show{transform:translateX(0);}
+  .drawer-head{padding:18px; border-bottom:2px dashed var(--line); display:flex; justify-content:space-between; align-items:center;}
+  .drawer-head h3{font-family:'Bitter', serif; margin:0; font-size:19px;}
+  .drawer-close{background:none; border:none; font-size:20px; cursor:pointer; color:var(--ink);}
+  .drawer-body{flex:1; overflow-y:auto; padding:14px 18px;}
+  .cart-line{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);}
+  .cart-line .name{font-size:14px;}
+  .cart-line .meta{font-size:12px; color:var(--muted); font-family:'IBM Plex Mono', monospace;}
+  .cart-line .remove{background:none; border:none; color:var(--danger); font-size:12px; cursor:pointer; text-decoration:underline;}
+  .drawer-foot{padding:16px 18px; border-top:2px dashed var(--line); background:var(--card);}
+  .total-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:700; margin-bottom:12px;}
+
+  .receipt{
+    background:#fff; border:1px solid var(--line); border-radius:4px; padding:18px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; line-height:1.7;
+  }
+  .receipt hr{border:none; border-top:1px dashed var(--line); margin:10px 0;}
+  .receipt .row{display:flex; justify-content:space-between;}
+
+  .admin-tabs{display:flex; gap:4px; margin-bottom:20px; border-bottom:1px solid var(--line);}
+  .admin-tabs button{
+    background:none; border:none; padding:10px 16px; font-size:13px; cursor:pointer;
+    color:var(--muted); border-bottom:2px solid transparent; font-family:inherit; font-weight:600;
+  }
+  .admin-tabs button.active{color:var(--accent2); border-bottom-color:var(--accent2);}
+  .order-card{
+    background:var(--card); border:1px solid var(--line); border-radius:6px; padding:14px 16px; margin-bottom:12px;
+    border-left:4px solid var(--muted);
+  }
+  .order-card.status-new{border-left-color:var(--accent);}
+  .order-card.status-packed{border-left-color:#B0862B;}
+  .order-card.status-out{border-left-color:var(--accent2);}
+  .order-card.status-delivered{border-left-color:var(--ok);}
+  .order-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px;}
+  .order-id{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);}
+  .order-cust{font-weight:600; font-size:14px;}
+  .status-pill{font-size:11px; padding:3px 10px; border-radius:12px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap;}
+  .status-new .status-pill{background:#FBE2D8; color:var(--accent-dark);}
+  .status-packed .status-pill{background:#F5E6C4; color:#8A6A1E;}
+  .status-out .status-pill{background:#EBDCE5; color:var(--accent2);}
+  .status-delivered .status-pill{background:#DCE6DA; color:var(--primary);}
+  .order-items{font-size:12.5px; color:var(--muted); margin-bottom:8px; font-family:'IBM Plex Mono', monospace;}
+  .order-actions{display:flex; gap:6px; flex-wrap:wrap;}
+  .order-actions button{font-size:11.5px; padding:6px 10px;}
+
+  .inv-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .inv-table th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); padding:8px; border-bottom:2px solid var(--line);}
+  .inv-table td{padding:8px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  .inv-table input{padding:6px 8px; font-size:13px;}
+  .inv-table .actions{display:flex; gap:6px;}
+  .stock-toggle{font-size:11px; padding:4px 10px; border-radius:12px; cursor:pointer; border:1px solid var(--line); background:#fff;}
+  .stock-toggle.in{background:#DCE6DA; color:var(--primary); border-color:var(--primary);}
+  .stock-toggle.out{background:#F5DAD3; color:var(--danger); border-color:var(--danger);}
+
+  .add-veg-form{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:16px; margin-bottom:20px;}
+  .add-veg-form .row{display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:10px; align-items:end;}
+  @media (max-width:700px){ .add-veg-form .row{grid-template-columns:1fr 1fr;} }
+
+  .settings-box{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:20px; max-width:420px;}
+  .pin-box{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:32px; max-width:340px; margin:40px auto; text-align:center;}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:80;
+    background:var(--ink); color:#fff; padding:11px 20px; border-radius:4px; font-size:13px;
+    box-shadow:0 3px 10px rgba(0,0,0,.25); opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .toast.show{opacity:1;}
+  .badge-count{
+    background:var(--accent); color:#fff; border-radius:10px; font-size:10px; padding:1px 6px; margin-left:5px;
+  }
+  .loading{text-align:center; padding:40px; color:var(--muted); font-size:13px;}
+  .error-box{background:#FBE2D8; border:1px solid var(--accent-dark); color:var(--accent-dark); padding:16px; border-radius:6px; font-size:13px; margin-bottom:16px;}
+  a{color:var(--accent-dark);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="stamp">V</div>
+    <div>
+      <h1>VegMart</h1>
+      <div class="sub">fresh from the crate, straight to your door</div>
+    </div>
+  </div>
+  <div class="nav-tabs" id="navTabs">
+    <button data-mode="shop" class="active">Shop</button>
+    <button data-mode="admin">Owner dashboard</button>
+  </div>
+</div>
+
+<div class="wrap" id="app">
+  <div class="loading">Loading VegMart…</div>
+</div>
+
+<button class="cart-fab" id="cartFab" style="display:none;">
+  🧺 Cart <span class="cart-badge" id="cartCount">0</span>
+</button>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <h3>Your basket</h3>
+    <button class="drawer-close" id="closeDrawer">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+let supabase;
+try{
+  supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+}catch(e){
+  supabase = null;
+}
+
+let catalog = [];
+let orders = [];
+let settings = { owner_phone:'', owner_pin:'' };
+let cart = {};
+let mode = 'shop';
+let activeCategory = 'All';
+let adminTab = 'orders';
+let adminUnlocked = false;
+let loadError = null;
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function isConfigured(){
+  return window.SUPABASE_URL && !window.SUPABASE_URL.includes('YOUR-PROJECT') &&
+         window.SUPABASE_ANON_KEY && !window.SUPABASE_ANON_KEY.includes('YOUR-ANON');
+}
+
+async function loadAll(){
+  if(!isConfigured()){
+    loadError = 'This site is not connected to a database yet. Edit config.js with your Supabase project URL and anon key.';
+    render();
+    return;
+  }
+  try{
+    const [{data:veg, error:e1}, {data:ord, error:e2}, {data:set, error:e3}] = await Promise.all([
+      supabase.from('vegetables').select('*').order('name'),
+      supabase.from('orders').select('*').order('created_at', {ascending:false}),
+      supabase.from('settings').select('*').eq('id','main').single()
+    ]);
+    if(e1) throw e1;
+    if(e2) throw e2;
+    if(e3) throw e3;
+    catalog = veg || [];
+    orders = ord || [];
+    settings = set || { owner_phone:'', owner_pin:'' };
+    loadError = null;
+  }catch(e){
+    loadError = 'Could not reach the database: ' + (e.message || e);
+  }
+  render();
+}
+
+function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
+
+document.getElementById('navTabs').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-mode]');
+  if(!btn) return;
+  mode = btn.dataset.mode;
+  document.querySelectorAll('#navTabs button').forEach(b=>b.classList.toggle('active', b===btn));
+  render();
+});
+
+function renderShop(){
+  const cats = ['All', ...new Set(catalog.map(v=>v.category))];
+  const items = activeCategory==='All' ? catalog : catalog.filter(v=>v.category===activeCategory);
+
+  let html = `
+    <div class="section-head">
+      <div>
+        <h2>Today's crate</h2>
+        <p>Order fresh vegetables for local delivery — pick your items and check out below.</p>
+      </div>
+    </div>
+    <div class="chips">
+      ${cats.map(c=>`<div class="chip ${c===activeCategory?'active':''}" data-cat="${c}">${c}</div>`).join('')}
+    </div>
+  `;
+
+  if(items.length===0){
+    html += `<div class="empty">No vegetables in this category yet.</div>`;
+  } else {
+    html += `<div class="grid">`;
+    items.forEach(v=>{
+      const qty = cart[v.id] || 0;
+      html += `
+        <div class="veg-card ${v.stock?'':'out'}">
+          <div class="tag mono">${fmt(v.price)}</div>
+          <div class="veg-emoji">${v.emoji||'🥗'}</div>
+          <p class="veg-name">${v.name}</p>
+          <div class="veg-cat">${v.category}</div>
+          <div class="veg-price">${fmt(v.price)} <span>/ ${v.unit}</span></div>
+          ${v.stock ? `
+            <div class="stepper">
+              <button data-act="dec" data-id="${v.id}">−</button>
+              <div class="qty">${qty}</div>
+              <button data-act="inc" data-id="${v.id}">+</button>
+            </div>
+            <button class="btn btn-dark add-btn" data-act="add" data-id="${v.id}">Add to basket</button>
+          ` : `<div class="out-label">Out of stock</div>`}
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('app').innerHTML = html;
+
+  document.querySelectorAll('.chip').forEach(el=>{
+    el.addEventListener('click', ()=>{ activeCategory = el.dataset.cat; renderShop(); });
+  });
+  document.querySelectorAll('[data-act="inc"]').forEach(el=>{
+    el.addEventListener('click', ()=>{ cart[el.dataset.id] = (cart[el.dataset.id]||0)+1; renderShop(); updateCartFab(); });
+  });
+  document.querySelectorAll('[data-act="dec"]').forEach(el=>{
+    el.addEventListener('click', ()=>{ cart[el.dataset.id] = Math.max(0,(cart[el.dataset.id]||0)-1); renderShop(); updateCartFab(); });
+  });
+  document.querySelectorAll('[data-act="add"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      if(!(cart[el.dataset.id]>0)) cart[el.dataset.id] = 1;
+      renderShop(); updateCartFab();
+      showToast('Added to basket');
+    });
+  });
+
+  updateCartFab();
+}
+
+function cartTotal(){
+  let total = 0, count = 0;
+  Object.keys(cart).forEach(id=>{
+    const qty = cart[id];
+    if(qty>0){
+      const v = catalog.find(x=>x.id===id);
+      if(v){ total += v.price*qty; count += qty; }
+    }
+  });
+  return {total, count};
+}
+
+function updateCartFab(){
+  const {count} = cartTotal();
+  const fab = document.getElementById('cartFab');
+  fab.style.display = (mode==='shop' && !loadError) ? 'flex' : 'none';
+  document.getElementById('cartCount').textContent = count;
+}
+
+function openDrawer(){
+  renderDrawer();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('cartDrawer').classList.add('show');
+}
+function closeDrawer(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('cartDrawer').classList.remove('show');
+}
+document.getElementById('cartFab').addEventListener('click', openDrawer);
+document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
+document.getElementById('overlay').addEventListener('click', closeDrawer);
+
+function renderDrawer(){
+  const ids = Object.keys(cart).filter(id=>cart[id]>0);
+  const body = document.getElementById('drawerBody');
+  const foot = document.getElementById('drawerFoot');
+
+  if(ids.length===0){
+    body.innerHTML = `<div class="empty">Your basket is empty. Add some vegetables to get started.</div>`;
+    foot.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  ids.forEach(id=>{
+    const v = catalog.find(x=>x.id===id);
+    if(!v) return;
+    html += `
+      <div class="cart-line">
+        <div>
+          <div class="name">${v.emoji} ${v.name}</div>
+          <div class="meta">${cart[id]} ${v.unit} × ${fmt(v.price)}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="mono">${fmt(cart[id]*v.price)}</div>
+          <button class="remove" data-id="${id}">remove</button>
+        </div>
+      </div>
+    `;
+  });
+  body.innerHTML = html;
+  body.querySelectorAll('.remove').forEach(el=>{
+    el.addEventListener('click', ()=>{ delete cart[el.dataset.id]; renderDrawer(); updateCartFab(); });
+  });
+
+  const {total} = cartTotal();
+  foot.innerHTML = `
+    <div class="total-row"><span>Total</span><span>${fmt(total)}</span></div>
+    <button class="btn btn-primary" style="width:100%;" id="checkoutBtn">Checkout</button>
+  `;
+  document.getElementById('checkoutBtn').addEventListener('click', openCheckout);
+}
+
+let capturedLocation = null;
+
+function requestLocation(){
+  const statusEl = document.getElementById('locStatus');
+  if(!('geolocation' in navigator)){
+    statusEl.textContent = 'Location isn\'t supported on this browser.';
+    return;
+  }
+  statusEl.textContent = 'Getting your location…';
+  navigator.geolocation.getCurrentPosition(
+    (pos)=>{
+      capturedLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      statusEl.innerHTML = '📍 Location captured — this helps us find you faster.';
+      statusEl.style.color = 'var(--primary)';
+    },
+    (err)=>{
+      capturedLocation = null;
+      statusEl.textContent = 'Couldn\'t get your location (permission denied or unavailable). Your typed address will still be used.';
+      statusEl.style.color = 'var(--muted)';
+    },
+    { enableHighAccuracy:true, timeout:8000 }
+  );
+}
+
+function openCheckout(){
+  const {total} = cartTotal();
+  const body = document.getElementById('drawerBody');
+  const foot = document.getElementById('drawerFoot');
+  capturedLocation = null;
+  body.innerHTML = `
+    <div class="field"><label>Your name</label><input id="custName" placeholder="Full name"></div>
+    <div class="field"><label>Phone number</label><input id="custPhone" placeholder="10-digit mobile number"></div>
+    <div class="field"><label>Delivery address</label><textarea id="custAddr" rows="3" placeholder="House no, street, area, landmark"></textarea></div>
+    <div class="field">
+      <button type="button" class="btn btn-outline" id="locBtn" style="width:100%;">📍 Share my current location (optional)</button>
+      <div id="locStatus" style="font-size:12px; color:var(--muted); margin-top:6px;"></div>
+    </div>
+    <div class="field">
+      <label>Delivery slot</label>
+      <select id="custSlot">
+        <option>Morning (8–11 AM)</option>
+        <option>Afternoon (12–3 PM)</option>
+        <option>Evening (5–8 PM)</option>
+      </select>
+    </div>
+  `;
+  document.getElementById('locBtn').addEventListener('click', requestLocation);
+  foot.innerHTML = `
+    <div class="total-row"><span>Total</span><span>${fmt(total)}</span></div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-outline" style="flex:1;" id="backToCart">Back</button>
+      <button class="btn btn-primary" style="flex:2;" id="placeOrderBtn">Place order</button>
+    </div>
+  `;
+  document.getElementById('backToCart').addEventListener('click', renderDrawer);
+  document.getElementById('placeOrderBtn').addEventListener('click', placeOrder);
+}
+
+async function placeOrder(){
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const addr = document.getElementById('custAddr').value.trim();
+  const slot = document.getElementById('custSlot').value;
+
+  if(!name || !phone || !addr){
+    showToast('Please fill in your name, phone, and address.');
+    return;
+  }
+
+  const ids = Object.keys(cart).filter(id=>cart[id]>0);
+  const items = ids.map(id=>{
+    const v = catalog.find(x=>x.id===id);
+    return { id, name:v.name, unit:v.unit, qty:cart[id], price:v.price };
+  });
+  const {total} = cartTotal();
+
+  const order = {
+    id:'ORD'+Date.now().toString().slice(-8),
+    items, total, customer_name:name, phone, address:addr, slot,
+    status:'new',
+    lat: capturedLocation ? capturedLocation.lat : null,
+    lng: capturedLocation ? capturedLocation.lng : null
+  };
+
+  const placeBtn = document.getElementById('placeOrderBtn');
+  placeBtn.disabled = true;
+  placeBtn.textContent = 'Placing order…';
+
+  const { error } = await supabase.from('orders').insert(order);
+  if(error){
+    showToast("Couldn't place order. Check your connection and try again.");
+    placeBtn.disabled = false;
+    placeBtn.textContent = 'Place order';
+    return;
+  }
+
+  orders.unshift(order);
+  cart = {};
+  showOrderConfirmation(order);
+}
+
+function mapLink(order){
+  if(order.lat==null || order.lng==null) return null;
+  return `https://www.google.com/maps?q=${order.lat},${order.lng}`;
+}
+
+function whatsappLink(order){
+  const lines = [
+    `New VegMart order ${order.id}`,
+    ...order.items.map(it=>`${it.name} — ${it.qty} ${it.unit} (${fmt(it.price*it.qty)})`),
+    `Total: ${fmt(order.total)}`,
+    `Customer: ${order.customer_name}, ${order.phone}`,
+    `Address: ${order.address}`,
+    `Slot: ${order.slot}`,
+    ...(mapLink(order) ? [`Location: ${mapLink(order)}`] : [])
+  ];
+  const text = encodeURIComponent(lines.join('\n'));
+  const phone = (settings.owner_phone||'').replace(/[^0-9]/g,'');
+  return `https://wa.me/${phone}?text=${text}`;
+}
+
+function showOrderConfirmation(order){
+  const body = document.getElementById('drawerBody');
+  const foot = document.getElementById('drawerFoot');
+  const hasOwnerPhone = !!(settings.owner_phone && settings.owner_phone.trim());
+
+  body.innerHTML = `
+    <div class="receipt">
+      <div style="text-align:center; font-family:'Bitter',serif; font-size:15px; margin-bottom:6px;">Order placed</div>
+      <div style="text-align:center; color:var(--muted); font-size:11px; margin-bottom:10px;">${order.id}</div>
+      <hr>
+      ${order.items.map(it=>`<div class="row"><span>${it.name} ×${it.qty}${it.unit}</span><span>${fmt(it.price*it.qty)}</span></div>`).join('')}
+      <hr>
+      <div class="row" style="font-weight:700;"><span>Total</span><span>${fmt(order.total)}</span></div>
+      <hr>
+      <div>${order.customer_name}</div>
+      <div>${order.phone}</div>
+      <div>${order.address}</div>
+      <div>${order.slot}</div>
+    </div>
+  `;
+
+  foot.innerHTML = hasOwnerPhone ? `
+    <a href="${whatsappLink(order)}" target="_blank" class="btn btn-primary" style="width:100%; display:block; text-align:center; text-decoration:none; box-sizing:border-box;">Send order via WhatsApp</a>
+    <button class="btn btn-outline" style="width:100%; margin-top:8px;" id="doneBtn">Done</button>
+  ` : `
+    <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Your order is saved. The shop hasn't set up WhatsApp notifications yet — it'll show up in their order list.</div>
+    <button class="btn btn-primary" style="width:100%;" id="doneBtn">Done</button>
+  `;
+  document.getElementById('doneBtn').addEventListener('click', ()=>{ closeDrawer(); renderShop(); });
+}
+
+function renderAdmin(){
+  if(settings.owner_pin && !adminUnlocked){
+    renderPinGate();
+    return;
+  }
+  const newCount = orders.filter(o=>o.status==='new').length;
+  let html = `
+    <div class="section-head">
+      <div>
+        <h2>Owner dashboard</h2>
+        <p>Manage stock and track incoming orders.</p>
+      </div>
+    </div>
+    <div class="admin-tabs">
+      <button data-tab="orders" class="${adminTab==='orders'?'active':''}">Orders ${newCount>0?`<span class="badge-count">${newCount} new</span>`:''}</button>
+      <button data-tab="inventory" class="${adminTab==='inventory'?'active':''}">Inventory</button>
+      <button data-tab="settings" class="${adminTab==='settings'?'active':''}">Settings</button>
+    </div>
+    <div id="adminBody"></div>
+  `;
+  document.getElementById('app').innerHTML = html;
+  document.querySelectorAll('.admin-tabs button').forEach(b=>{
+    b.addEventListener('click', ()=>{ adminTab=b.dataset.tab; renderAdmin(); });
+  });
+
+  if(adminTab==='orders') renderAdminOrders();
+  else if(adminTab==='inventory') renderAdminInventory();
+  else renderAdminSettings();
+}
+
+function renderPinGate(){
+  document.getElementById('app').innerHTML = `
+    <div class="pin-box">
+      <p style="font-family:'Bitter',serif; font-size:17px; margin:0 0 12px;">Owner access</p>
+      <div class="field" style="text-align:left;">
+        <label>Enter PIN</label>
+        <input id="pinInput" type="password" placeholder="••••">
+      </div>
+      <button class="btn btn-primary" id="pinSubmit" style="width:100%;">Unlock</button>
+      <p style="font-size:11px; color:var(--muted); margin-top:14px;">This is a light gate, not real security — anyone who knows the PIN or reads the site's code can get in.</p>
+    </div>
+  `;
+  document.getElementById('pinSubmit').addEventListener('click', ()=>{
+    const val = document.getElementById('pinInput').value;
+    if(val === settings.owner_pin){
+      adminUnlocked = true;
+      renderAdmin();
+    } else {
+      showToast('Incorrect PIN');
+    }
+  });
+  document.getElementById('pinInput').addEventListener('keydown', (e)=>{
+    if(e.key==='Enter') document.getElementById('pinSubmit').click();
+  });
+}
+
+const STATUS_FLOW = ['new','packed','out','delivered'];
+const STATUS_LABEL = {new:'New', packed:'Packed', out:'Out for delivery', delivered:'Delivered'};
+
+function renderAdminOrders(){
+  const el = document.getElementById('adminBody');
+  if(orders.length===0){
+    el.innerHTML = `<div class="empty">No orders yet. New orders placed by customers will show up here.</div>`;
+    return;
+  }
+  el.innerHTML = orders.map(o=>{
+    const nextIdx = STATUS_FLOW.indexOf(o.status)+1;
+    const next = STATUS_FLOW[nextIdx];
+    return `
+      <div class="order-card status-${o.status}">
+        <div class="order-top">
+          <div>
+            <div class="order-cust">${o.customer_name} · ${o.phone}</div>
+            <div class="order-id">${o.id} · ${new Date(o.created_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})} · ${o.slot}</div>
+          </div>
+          <div class="status-pill">${STATUS_LABEL[o.status]}</div>
+        </div>
+        <div class="order-items">${o.items.map(it=>`${it.name} ×${it.qty}${it.unit}`).join(', ')} — <strong>${fmt(o.total)}</strong></div>
+        <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">${o.address}</div>
+        <div class="order-actions">
+          ${next ? `<button class="btn btn-dark" data-advance="${o.id}">Mark ${STATUS_LABEL[next]}</button>` : ''}
+          <a href="${whatsappLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">Message on WhatsApp</a>
+          ${mapLink(o) ? `<a href="${mapLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">📍 View on map</a>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  el.querySelectorAll('[data-advance]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const order = orders.find(o=>o.id===btn.dataset.advance);
+      const idx = STATUS_FLOW.indexOf(order.status);
+      const newStatus = STATUS_FLOW[idx+1];
+      const { error } = await supabase.from('orders').update({status:newStatus}).eq('id', order.id);
+      if(error){ showToast("Couldn't update order status."); return; }
+      order.status = newStatus;
+      renderAdminOrders();
+      renderAdmin();
+    });
+  });
+}
+
+function renderAdminInventory(){
+  const el = document.getElementById('adminBody');
+  el.innerHTML = `
+    <div class="add-veg-form">
+      <div class="row">
+        <div><label>Name</label><input id="newName" placeholder="e.g. Cabbage"></div>
+        <div><label>Category</label><input id="newCat" placeholder="Vegetable"></div>
+        <div><label>Price (₹)</label><input id="newPrice" type="number" min="0" placeholder="30"></div>
+        <div><label>Unit</label>
+          <select id="newUnit"><option>kg</option><option>piece</option><option>bunch</option><option>g</option></select>
+        </div>
+        <button class="btn btn-primary" id="addVegBtn">Add</button>
+      </div>
+    </div>
+    <table class="inv-table">
+      <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Unit</th><th>Stock</th><th></th></tr></thead>
+      <tbody id="invRows"></tbody>
+    </table>
+  `;
+
+  document.getElementById('addVegBtn').addEventListener('click', async ()=>{
+    const name = document.getElementById('newName').value.trim();
+    const cat = document.getElementById('newCat').value.trim() || 'Vegetable';
+    const price = parseFloat(document.getElementById('newPrice').value);
+    const unit = document.getElementById('newUnit').value;
+    if(!name || isNaN(price) || price<0){
+      showToast('Enter a name and a valid price.');
+      return;
+    }
+    const newItem = { id:'v'+Date.now(), name, category:cat, price, unit, stock:true, emoji:'🥗' };
+    const { error } = await supabase.from('vegetables').insert(newItem);
+    if(error){ showToast("Couldn't add item."); return; }
+    catalog.push(newItem);
+    renderAdminInventory();
+    showToast(name + ' added to inventory');
+  });
+
+  const rows = document.getElementById('invRows');
+  rows.innerHTML = catalog.map(v=>`
+    <tr data-id="${v.id}">
+      <td>${v.emoji} ${v.name}</td>
+      <td>${v.category}</td>
+      <td><input class="price-in" type="number" min="0" value="${v.price}" style="width:80px;"></td>
+      <td>${v.unit}</td>
+      <td><button class="stock-toggle ${v.stock?'in':'out'}" data-toggle="${v.id}">${v.stock?'In stock':'Out of stock'}</button></td>
+      <td><button class="btn btn-outline" data-del="${v.id}" style="color:var(--danger); border-color:var(--danger);">Delete</button></td>
+    </tr>
+  `).join('');
+
+  rows.querySelectorAll('.price-in').forEach(input=>{
+    input.addEventListener('change', async ()=>{
+      const id = input.closest('tr').dataset.id;
+      const v = catalog.find(x=>x.id===id);
+      const val = parseFloat(input.value);
+      if(isNaN(val) || val<0) return;
+      const { error } = await supabase.from('vegetables').update({price:val}).eq('id', id);
+      if(error){ showToast("Couldn't update price."); return; }
+      v.price = val;
+      showToast('Price updated');
+    });
+  });
+  rows.querySelectorAll('[data-toggle]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const v = catalog.find(x=>x.id===btn.dataset.toggle);
+      const newStock = !v.stock;
+      const { error } = await supabase.from('vegetables').update({stock:newStock}).eq('id', v.id);
+      if(error){ showToast("Couldn't update stock."); return; }
+      v.stock = newStock;
+      renderAdminInventory();
+    });
+  });
+  rows.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.del;
+      const { error } = await supabase.from('vegetables').delete().eq('id', id);
+      if(error){ showToast("Couldn't remove item."); return; }
+      catalog = catalog.filter(x=>x.id!==id);
+      renderAdminInventory();
+      showToast('Item removed');
+    });
+  });
+}
+
+function renderAdminSettings(){
+  const el = document.getElementById('adminBody');
+  el.innerHTML = `
+    <div class="settings-box">
+      <div class="field">
+        <label>WhatsApp number for order notifications</label>
+        <input id="phoneInput" placeholder="e.g. 919876543210 (country code, no +)" value="${settings.owner_phone||''}">
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin:0 0 14px;">
+        Customers get a "Send order via WhatsApp" button after checkout that opens a chat to this number with the order details filled in.
+      </p>
+      <div class="field">
+        <label>Admin PIN (optional)</label>
+        <input id="pinInputSet" placeholder="Leave blank for no PIN" value="${settings.owner_pin||''}">
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin:0 0 14px;">
+        A light gate for the owner dashboard. Not secure encryption — don't rely on it for sensitive data.
+      </p>
+      <button class="btn btn-primary" id="saveSettingsBtn">Save</button>
+    </div>
+  `;
+  document.getElementById('saveSettingsBtn').addEventListener('click', async ()=>{
+    const owner_phone = document.getElementById('phoneInput').value.trim();
+    const owner_pin = document.getElementById('pinInputSet').value.trim();
+    const { error } = await supabase.from('settings').update({owner_phone, owner_pin}).eq('id','main');
+    if(error){ showToast("Couldn't save settings."); return; }
+    settings.owner_phone = owner_phone;
+    settings.owner_pin = owner_pin;
+    showToast('Settings saved');
+  });
+}
+
+function render(){
+  if(loadError){
+    document.getElementById('app').innerHTML = `<div class="error-box">${loadError}</div>`;
+    updateCartFab();
+    return;
+  }
+  if(mode==='shop') renderShop();
+  else renderAdmin();
+  updateCartFab();
+}
+
+loadAll();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
