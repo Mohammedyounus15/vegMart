@@ -45,11 +45,12 @@
     display:flex; align-items:center; justify-content:space-between;
     border-bottom:3px solid var(--primary-dark);
   }
-  .brand{display:flex; align-items:center; gap:10px;}
+  .brand{display:flex; align-items:center; gap:10px; cursor:pointer;}
   .brand .stamp{
     width:34px; height:34px; border-radius:50%;
     border:2px solid #F1F0E4; display:flex; align-items:center; justify-content:center;
     font-family:'Bitter', serif; font-weight:700; font-size:15px; transform:rotate(-6deg);
+    user-select:none;
   }
   .brand h1{font-family:'Bitter', serif; font-size:20px; margin:0; letter-spacing:.3px;}
   .brand .sub{font-size:11px; opacity:.8; margin-top:1px;}
@@ -212,7 +213,7 @@
 <body>
 
 <div class="topbar">
-  <div class="brand">
+  <div class="brand" id="brandLogo">
     <div class="stamp">V</div>
     <div>
       <h1>VegMart</h1>
@@ -221,7 +222,6 @@
   </div>
   <div class="nav-tabs" id="navTabs">
     <button data-mode="shop" class="active">Shop</button>
-    <button data-mode="admin">Owner dashboard</button>
   </div>
 </div>
 
@@ -265,6 +265,27 @@ let adminTab = 'orders';
 let adminUnlocked = false;
 let loadError = null;
 
+// Hidden URL shortcut trigger (?admin=true)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('admin')) {
+  mode = 'admin';
+}
+
+// Secret triple click trigger on logo
+let logoClicks = 0;
+let clickTimer = null;
+document.getElementById('brandLogo').addEventListener('click', () => {
+  logoClicks++;
+  clearTimeout(clickTimer);
+  clickTimer = setTimeout(() => { logoClicks = 0; }, 1000);
+  if (logoClicks >= 3) {
+    logoClicks = 0;
+    mode = (mode === 'admin') ? 'shop' : 'admin';
+    showToast(mode === 'admin' ? 'Switched to Owner Mode' : 'Switched to Shop Mode');
+    render();
+  }
+});
+
 function showToast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -284,17 +305,18 @@ async function loadAll(){
     return;
   }
   try{
-    const [{data:veg, error:e1}, {data:ord, error:e2}, {data:set, error:e3}] = await Promise.all([
-      supabase.from('vegetables').select('*').order('name'),
+    const vegRes = await supabase.from('vegetables').select('*').order('name');
+    if(vegRes.error) throw vegRes.error;
+    catalog = vegRes.data || [];
+
+    // Attempt fetching orders and settings (will populate if authorized/PIN verified)
+    const [ordRes, setRes] = await Promise.all([
       supabase.from('orders').select('*').order('created_at', {ascending:false}),
       supabase.from('settings').select('*').eq('id','main').single()
     ]);
-    if(e1) throw e1;
-    if(e2) throw e2;
-    if(e3) throw e3;
-    catalog = veg || [];
-    orders = ord || [];
-    settings = set || { owner_phone:'', owner_pin:'' };
+
+    orders = ordRes.data || [];
+    settings = setRes.data || { owner_phone:'', owner_pin:'' };
     loadError = null;
   }catch(e){
     loadError = 'Could not reach the database: ' + (e.message || e);
@@ -303,14 +325,6 @@ async function loadAll(){
 }
 
 function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
-
-document.getElementById('navTabs').addEventListener('click', (e)=>{
-  const btn = e.target.closest('button[data-mode]');
-  if(!btn) return;
-  mode = btn.dataset.mode;
-  document.querySelectorAll('#navTabs button').forEach(b=>b.classList.toggle('active', b===btn));
-  render();
-});
 
 function renderShop(){
   const cats = ['All', ...new Set(catalog.map(v=>v.category))];
@@ -614,6 +628,7 @@ function renderAdmin(){
         <h2>Owner dashboard</h2>
         <p>Manage stock and track incoming orders.</p>
       </div>
+      <button class="btn btn-outline" id="exitAdmin">Exit Owner View</button>
     </div>
     <div class="admin-tabs">
       <button data-tab="orders" class="${adminTab==='orders'?'active':''}">Orders ${newCount>0?`<span class="badge-count">${newCount} new</span>`:''}</button>
@@ -623,6 +638,12 @@ function renderAdmin(){
     <div id="adminBody"></div>
   `;
   document.getElementById('app').innerHTML = html;
+  
+  document.getElementById('exitAdmin').addEventListener('click', () => {
+    mode = 'shop';
+    render();
+  });
+
   document.querySelectorAll('.admin-tabs button').forEach(b=>{
     b.addEventListener('click', ()=>{ adminTab=b.dataset.tab; renderAdmin(); });
   });
@@ -641,7 +662,7 @@ function renderPinGate(){
         <input id="pinInput" type="password" placeholder="••••">
       </div>
       <button class="btn btn-primary" id="pinSubmit" style="width:100%;">Unlock</button>
-      <p style="font-size:11px; color:var(--muted); margin-top:14px;">This is a light gate, not real security — anyone who knows the PIN or reads the site's code can get in.</p>
+      <button class="btn btn-outline" id="exitPin" style="width:100%; margin-top:8px;">Back to Shop</button>
     </div>
   `;
   document.getElementById('pinSubmit').addEventListener('click', ()=>{
@@ -652,6 +673,10 @@ function renderPinGate(){
     } else {
       showToast('Incorrect PIN');
     }
+  });
+  document.getElementById('exitPin').addEventListener('click', ()=>{
+    mode = 'shop';
+    render();
   });
   document.getElementById('pinInput').addEventListener('keydown', (e)=>{
     if(e.key==='Enter') document.getElementById('pinSubmit').click();
