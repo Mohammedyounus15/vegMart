@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#2F5233">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VegMart">
 <style>
@@ -45,12 +45,11 @@
     display:flex; align-items:center; justify-content:space-between;
     border-bottom:3px solid var(--primary-dark);
   }
-  .brand{display:flex; align-items:center; gap:10px; cursor:pointer;}
+  .brand{display:flex; align-items:center; gap:10px;}
   .brand .stamp{
     width:34px; height:34px; border-radius:50%;
     border:2px solid #F1F0E4; display:flex; align-items:center; justify-content:center;
     font-family:'Bitter', serif; font-weight:700; font-size:15px; transform:rotate(-6deg);
-    user-select:none;
   }
   .brand h1{font-family:'Bitter', serif; font-size:20px; margin:0; letter-spacing:.3px;}
   .brand .sub{font-size:11px; opacity:.8; margin-top:1px;}
@@ -181,6 +180,13 @@
   .order-actions{display:flex; gap:6px; flex-wrap:wrap;}
   .order-actions button{font-size:11.5px; padding:6px 10px;}
 
+  /* Stats grid for Admin */
+  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:20px;}
+  .stat-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:14px; text-align:center;}
+  .stat-card .lbl{font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:700;}
+  .stat-card .val{font-family:'IBM Plex Mono', monospace; font-size:18px; font-weight:700; color:var(--primary); margin:6px 0 2px;}
+  .stat-card .subval{font-size:12px; color:var(--muted);}
+
   .inv-table{width:100%; border-collapse:collapse; font-size:13px;}
   .inv-table th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); padding:8px; border-bottom:2px solid var(--line);}
   .inv-table td{padding:8px; border-bottom:1px solid var(--line); vertical-align:middle;}
@@ -213,7 +219,7 @@
 <body>
 
 <div class="topbar">
-  <div class="brand" id="brandLogo">
+  <div class="brand">
     <div class="stamp">V</div>
     <div>
       <h1>VegMart</h1>
@@ -222,6 +228,7 @@
   </div>
   <div class="nav-tabs" id="navTabs">
     <button data-mode="shop" class="active">Shop</button>
+    <button data-mode="admin">Owner dashboard</button>
   </div>
 </div>
 
@@ -250,7 +257,11 @@
 <script>
 var supabase;
 try{
-  supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  if(window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+    supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  } else {
+    supabase = null;
+  }
 }catch(e){
   supabase = null;
 }
@@ -264,27 +275,6 @@ let activeCategory = 'All';
 let adminTab = 'orders';
 let adminUnlocked = false;
 let loadError = null;
-
-// Hidden URL shortcut trigger (?admin=true)
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has('admin')) {
-  mode = 'admin';
-}
-
-// Secret triple click trigger on logo
-let logoClicks = 0;
-let clickTimer = null;
-document.getElementById('brandLogo').addEventListener('click', () => {
-  logoClicks++;
-  clearTimeout(clickTimer);
-  clickTimer = setTimeout(() => { logoClicks = 0; }, 1000);
-  if (logoClicks >= 3) {
-    logoClicks = 0;
-    mode = (mode === 'admin') ? 'shop' : 'admin';
-    showToast(mode === 'admin' ? 'Switched to Owner Mode' : 'Switched to Shop Mode');
-    render();
-  }
-});
 
 function showToast(msg){
   const t = document.getElementById('toast');
@@ -305,26 +295,35 @@ async function loadAll(){
     return;
   }
   try{
-    const vegRes = await supabase.from('vegetables').select('*').order('name');
-    if(vegRes.error) throw vegRes.error;
-    catalog = vegRes.data || [];
-
-    // Attempt fetching orders and settings (will populate if authorized/PIN verified)
-    const [ordRes, setRes] = await Promise.all([
+    const [vegRes, ordRes, setRes] = await Promise.all([
+      supabase.from('vegetables').select('*').order('name'),
       supabase.from('orders').select('*').order('created_at', {ascending:false}),
-      supabase.from('settings').select('*').eq('id','main').single()
+      supabase.from('settings').select('*').eq('id','main').maybeSingle()
     ]);
 
+    if(vegRes.error) throw vegRes.error;
+    if(ordRes.error) throw ordRes.error;
+
+    catalog = vegRes.data || [];
     orders = ordRes.data || [];
     settings = setRes.data || { owner_phone:'', owner_pin:'' };
     loadError = null;
   }catch(e){
-    loadError = 'Could not reach the database: ' + (e.message || e);
+    console.error('Database load error:', e);
+    loadError = 'Could not reach the database: ' + (e.message || JSON.stringify(e));
   }
   render();
 }
 
 function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
+
+document.getElementById('navTabs').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-mode]');
+  if(!btn) return;
+  mode = btn.dataset.mode;
+  document.querySelectorAll('#navTabs button').forEach(b=>b.classList.toggle('active', b===btn));
+  render();
+});
 
 function renderShop(){
   const cats = ['All', ...new Set(catalog.map(v=>v.category))];
@@ -616,20 +615,76 @@ function showOrderConfirmation(order){
   document.getElementById('doneBtn').addEventListener('click', ()=>{ closeDrawer(); renderShop(); });
 }
 
+function calcStats(){
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  const dayOfWeek = now.getDay();
+  const weekStart = new Date(todayStart);
+  weekStart.setDate(todayStart.getDate() - dayOfWeek);
+
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  let todayRev = 0, todayOrders = 0;
+  let weekRev = 0, weekOrders = 0;
+  let monthRev = 0, monthOrders = 0;
+
+  orders.forEach(o => {
+    const d = new Date(o.created_at);
+    const amt = Number(o.total) || 0;
+
+    if(d >= todayStart){
+      todayRev += amt;
+      todayOrders++;
+    }
+    if(d >= weekStart){
+      weekRev += amt;
+      weekOrders++;
+    }
+    if(d >= monthStart){
+      monthRev += amt;
+      monthOrders++;
+    }
+  });
+
+  return { todayRev, todayOrders, weekRev, weekOrders, monthRev, monthOrders };
+}
+
 function renderAdmin(){
   if(settings.owner_pin && !adminUnlocked){
     renderPinGate();
     return;
   }
   const newCount = orders.filter(o=>o.status==='new').length;
+  const stats = calcStats();
+
   let html = `
     <div class="section-head">
       <div>
         <h2>Owner dashboard</h2>
         <p>Manage stock and track incoming orders.</p>
       </div>
-      <button class="btn btn-outline" id="exitAdmin">Exit Owner View</button>
     </div>
+
+    <!-- Admin-Only Analytics Summary -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="lbl">Today</div>
+        <div class="val">${fmt(stats.todayRev)}</div>
+        <div class="subval">${stats.todayOrders} ${stats.todayOrders===1?'order':'orders'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">This Week</div>
+        <div class="val">${fmt(stats.weekRev)}</div>
+        <div class="subval">${stats.weekOrders} ${stats.weekOrders===1?'order':'orders'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">This Month</div>
+        <div class="val">${fmt(stats.monthRev)}</div>
+        <div class="subval">${stats.monthOrders} ${stats.monthOrders===1?'order':'orders'}</div>
+      </div>
+    </div>
+
     <div class="admin-tabs">
       <button data-tab="orders" class="${adminTab==='orders'?'active':''}">Orders ${newCount>0?`<span class="badge-count">${newCount} new</span>`:''}</button>
       <button data-tab="inventory" class="${adminTab==='inventory'?'active':''}">Inventory</button>
@@ -638,12 +693,6 @@ function renderAdmin(){
     <div id="adminBody"></div>
   `;
   document.getElementById('app').innerHTML = html;
-  
-  document.getElementById('exitAdmin').addEventListener('click', () => {
-    mode = 'shop';
-    render();
-  });
-
   document.querySelectorAll('.admin-tabs button').forEach(b=>{
     b.addEventListener('click', ()=>{ adminTab=b.dataset.tab; renderAdmin(); });
   });
@@ -662,7 +711,7 @@ function renderPinGate(){
         <input id="pinInput" type="password" placeholder="••••">
       </div>
       <button class="btn btn-primary" id="pinSubmit" style="width:100%;">Unlock</button>
-      <button class="btn btn-outline" id="exitPin" style="width:100%; margin-top:8px;">Back to Shop</button>
+      <p style="font-size:11px; color:var(--muted); margin-top:14px;">This is a light gate, not real security — anyone who knows the PIN or reads the site's code can get in.</p>
     </div>
   `;
   document.getElementById('pinSubmit').addEventListener('click', ()=>{
@@ -673,10 +722,6 @@ function renderPinGate(){
     } else {
       showToast('Incorrect PIN');
     }
-  });
-  document.getElementById('exitPin').addEventListener('click', ()=>{
-    mode = 'shop';
-    render();
   });
   document.getElementById('pinInput').addEventListener('keydown', (e)=>{
     if(e.key==='Enter') document.getElementById('pinSubmit').click();
