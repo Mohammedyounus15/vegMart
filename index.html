@@ -284,20 +284,22 @@ async function loadAll(){
     return;
   }
   try{
-    const [{data:veg, error:e1}, {data:ord, error:e2}, {data:set, error:e3}] = await Promise.all([
+    const [vegRes, ordRes, setRes] = await Promise.all([
       supabase.from('vegetables').select('*').order('name'),
       supabase.from('orders').select('*').order('created_at', {ascending:false}),
-      supabase.from('settings').select('*').eq('id','main').single()
+      supabase.from('settings').select('*').eq('id','main').maybeSingle()
     ]);
-    if(e1) throw e1;
-    if(e2) throw e2;
-    if(e3) throw e3;
-    catalog = veg || [];
-    orders = ord || [];
-    settings = set || { owner_phone:'', owner_pin:'' };
+
+    if(vegRes.error) throw vegRes.error;
+    if(ordRes.error) throw ordRes.error;
+
+    catalog = vegRes.data || [];
+    orders = ordRes.data || [];
+    settings = setRes.data || { owner_phone:'', owner_pin:'' };
     loadError = null;
   }catch(e){
-    loadError = 'Could not reach the database: ' + (e.message || e);
+    console.error('Database load error:', e);
+    loadError = 'Could not reach the database: ' + (e.message || JSON.stringify(e));
   }
   render();
 }
