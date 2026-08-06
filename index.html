@@ -228,7 +228,7 @@
   </div>
   <div class="nav-tabs" id="navTabs">
     <button data-mode="shop" class="active">Shop</button>
-    <button data-mode="admin">Owner dashboard</button>
+    <button data-mode="admin" id="adminTabBtn" style="display:none;">Owner dashboard</button>
   </div>
 </div>
 
@@ -275,6 +275,15 @@ let activeCategory = 'All';
 let adminTab = 'orders';
 let adminUnlocked = false;
 let loadError = null;
+
+// Secret access control: display Owner dashboard tab only if URL contains ?admin=true
+const urlParams = new URLSearchParams(window.location.search);
+const isAdminUrl = urlParams.get('admin') === 'true';
+
+if (isAdminUrl) {
+  const btn = document.getElementById('adminTabBtn');
+  if(btn) btn.style.display = 'inline-block';
+}
 
 function showToast(msg){
   const t = document.getElementById('toast');
