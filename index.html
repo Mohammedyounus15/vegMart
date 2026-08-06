@@ -181,11 +181,13 @@
   .order-actions button{font-size:11.5px; padding:6px 10px;}
 
   /* Stats grid for Admin */
-  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:20px;}
+  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:12px; margin-bottom:20px;}
   .stat-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:14px; text-align:center;}
   .stat-card .lbl{font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:700;}
   .stat-card .val{font-family:'IBM Plex Mono', monospace; font-size:18px; font-weight:700; color:var(--primary); margin:6px 0 2px;}
   .stat-card .subval{font-size:12px; color:var(--muted);}
+  .stat-card.pending .val{color:var(--accent);}
+  .stat-card.delivered .val{color:var(--ok);}
 
   .inv-table{width:100%; border-collapse:collapse; font-size:13px;}
   .inv-table th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); padding:8px; border-bottom:2px solid var(--line);}
@@ -643,6 +645,7 @@ function calcStats(){
   let todayRev = 0, todayOrders = 0;
   let weekRev = 0, weekOrders = 0;
   let monthRev = 0, monthOrders = 0;
+  let pendingOrders = 0, deliveredOrders = 0;
 
   orders.forEach(o => {
     const d = new Date(o.created_at);
@@ -660,9 +663,15 @@ function calcStats(){
       monthRev += amt;
       monthOrders++;
     }
+
+    if(o.status === 'delivered'){
+      deliveredOrders++;
+    } else {
+      pendingOrders++;
+    }
   });
 
-  return { todayRev, todayOrders, weekRev, weekOrders, monthRev, monthOrders };
+  return { todayRev, todayOrders, weekRev, weekOrders, monthRev, monthOrders, pendingOrders, deliveredOrders };
 }
 
 function renderAdmin(){
@@ -697,6 +706,16 @@ function renderAdmin(){
         <div class="lbl">This Month</div>
         <div class="val">${fmt(stats.monthRev)}</div>
         <div class="subval">${stats.monthOrders} ${stats.monthOrders===1?'order':'orders'}</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="lbl">Pending</div>
+        <div class="val">${stats.pendingOrders}</div>
+        <div class="subval">Action needed</div>
+      </div>
+      <div class="stat-card delivered">
+        <div class="lbl">Delivered</div>
+        <div class="val">${stats.deliveredOrders}</div>
+        <div class="subval">Completed</div>
       </div>
     </div>
 
