@@ -227,7 +227,7 @@
     </div>
   </div>
   <div class="nav-tabs" id="navTabs">
-    <button data-mode="shop" class="active">Shop</button>
+    <button data-mode="shop" class="active" id="shopTabBtn">Shop</button>
     <button data-mode="admin" id="adminTabBtn" style="display:none;">Owner dashboard</button>
   </div>
 </div>
@@ -276,13 +276,19 @@ let adminTab = 'orders';
 let adminUnlocked = false;
 let loadError = null;
 
-// Secret access control: display Owner dashboard tab only if URL contains ?admin=true
+// Secret access control: display Owner dashboard tab and directly switch to admin mode if URL contains ?admin=true
 const urlParams = new URLSearchParams(window.location.search);
 const isAdminUrl = urlParams.get('admin') === 'true';
 
 if (isAdminUrl) {
-  const btn = document.getElementById('adminTabBtn');
-  if(btn) btn.style.display = 'inline-block';
+  mode = 'admin';
+  const adminBtn = document.getElementById('adminTabBtn');
+  const shopBtn = document.getElementById('shopTabBtn');
+  if(adminBtn) {
+    adminBtn.style.display = 'inline-block';
+    adminBtn.classList.add('active');
+  }
+  if(shopBtn) shopBtn.classList.remove('active');
 }
 
 function showToast(msg){
@@ -717,10 +723,10 @@ function renderPinGate(){
       <p style="font-family:'Bitter',serif; font-size:17px; margin:0 0 12px;">Owner access</p>
       <div class="field" style="text-align:left;">
         <label>Enter PIN</label>
-        <input id="pinInput" type="password" placeholder="••••">
+        <input id="pinInput" type="password" placeholder="••••" autofocus>
       </div>
       <button class="btn btn-primary" id="pinSubmit" style="width:100%;">Unlock</button>
-      <p style="font-size:11px; color:var(--muted); margin-top:14px;">This is a light gate, not real security — anyone who knows the PIN or reads the site's code can get in.</p>
+      <p style="font-size:11px; color:var(--muted); margin-top:14px;">Enter your Admin PIN to unlock order controls and analytics.</p>
     </div>
   `;
   document.getElementById('pinSubmit').addEventListener('click', ()=>{
