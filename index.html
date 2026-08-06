@@ -37,6 +37,16 @@
   .mono{font-family:'IBM Plex Mono', monospace;}
   .display{font-family:'Bitter', Georgia, serif;}
 
+  .announcement-bar {
+    background: var(--accent2);
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    padding: 6px 12px;
+    font-weight: 600;
+    letter-spacing: .2px;
+  }
+
   .topbar{
     position:sticky; top:0; z-index:40;
     background:var(--primary);
@@ -64,9 +74,28 @@
 
   .wrap{max-width:1000px; margin:0 auto; padding:24px 20px 80px;}
 
-  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:12px;}
   .section-head h2{font-family:'Bitter', serif; font-size:22px; margin:0;}
   .section-head p{font-size:13px; color:var(--muted); margin:2px 0 0;}
+  
+  .search-box {
+    max-width: 300px;
+    position: relative;
+  }
+  .search-box input {
+    padding-left: 32px;
+    border-radius: 20px;
+  }
+  .search-box::before {
+    content: "🔍";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    opacity: 0.6;
+  }
+
   .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
   .chip{
     background:var(--card); border:1px solid var(--line); padding:6px 14px;
@@ -99,7 +128,7 @@
   .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:16px;}
   .veg-card{
     background:var(--card); border:1px solid var(--line); border-radius:6px;
-    padding:14px; position:relative; overflow:hidden;
+    padding:14px; position:relative; overflow:hidden; display:flex; flex-direction:column;
   }
   .veg-card.out{opacity:.5;}
   .tag{
@@ -107,19 +136,33 @@
     transform:rotate(45deg); font-family:'IBM Plex Mono', monospace; font-size:11px;
     font-weight:600; padding:3px 34px; box-shadow:0 1px 2px rgba(0,0,0,.15);
   }
+  .item-badge {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 3px; background: var(--line); color: var(--ink); margin-bottom: 6px; width: fit-content;
+  }
+  .item-badge.organic { background: #DCE6DA; color: var(--primary); }
+  .item-badge.bestseller { background: #FBE2D8; color: var(--accent-dark); }
+
   .veg-emoji{font-size:34px; margin-bottom:6px;}
   .veg-name{font-family:'Bitter', serif; font-size:16px; margin:0 0 2px;}
   .veg-cat{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px;}
   .veg-price{font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:600; color:var(--primary); margin-bottom:10px;}
   .veg-price span{font-size:11px; color:var(--muted); font-weight:400;}
-  .stepper{display:flex; align-items:center; gap:8px;}
+  .stepper{display:flex; align-items:center; gap:8px; margin-top: auto;}
   .stepper button{
     width:28px; height:28px; border-radius:3px; border:1px solid var(--line);
     background:#fff; font-size:16px; cursor:pointer; line-height:1;
   }
   .stepper .qty{flex:1; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:14px;}
   .add-btn{width:100%; margin-top:10px;}
-  .out-label{font-size:12px; color:var(--danger); font-weight:600; text-align:center; padding:8px 0;}
+  .out-label{font-size:12px; color:var(--danger); font-weight:600; text-align:center; padding:8px 0; margin-top: auto;}
+
+  .help-fab {
+    position:fixed; bottom:22px; left:22px; z-index:50;
+    background:#25D366; color:#fff; border-radius:50%; width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center; text-decoration:none;
+    box-shadow:0 3px 10px rgba(0,0,0,.25); font-size:22px;
+  }
 
   .cart-fab{
     position:fixed; bottom:22px; right:22px; z-index:50;
@@ -145,7 +188,13 @@
   .cart-line .meta{font-size:12px; color:var(--muted); font-family:'IBM Plex Mono', monospace;}
   .cart-line .remove{background:none; border:none; color:var(--danger); font-size:12px; cursor:pointer; text-decoration:underline;}
   .drawer-foot{padding:16px 18px; border-top:2px dashed var(--line); background:var(--card);}
-  .total-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:700; margin-bottom:12px;}
+  .total-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:14px; margin-bottom:6px;}
+  .total-row.grand{font-size:16px; font-weight:700; margin-top:8px; border-top:1px solid var(--line); padding-top:8px;}
+
+  .mov-banner {
+    background: #FBE2D8; color: var(--accent-dark); font-size: 11.5px; padding: 8px 12px;
+    border-radius: 4px; text-align: center; margin-bottom: 12px; font-weight: 600;
+  }
 
   .receipt{
     background:#fff; border:1px solid var(--line); border-radius:4px; padding:18px;
@@ -178,11 +227,11 @@
   .status-delivered .status-pill{background:#DCE6DA; color:var(--primary);}
   .order-items{font-size:12.5px; color:var(--muted); margin-bottom:8px; font-family:'IBM Plex Mono', monospace;}
   .order-actions{display:flex; gap:6px; flex-wrap:wrap;}
-  .order-actions button{font-size:11.5px; padding:6px 10px;}
+  .order-actions button, .order-actions a{font-size:11.5px; padding:6px 10px;}
 
-  /* Stats Section Styling */
+  /* Analytics Styling */
   .stats-section-title{font-family:'Bitter', serif; font-size:16px; margin:0 0 12px; color:var(--ink);}
-  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:24px;}
+  .stats-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:12px; margin-bottom:24px;}
   .stat-card{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:16px; text-align:center;}
   .stat-card .lbl{font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); font-weight:700;}
   .stat-card .val{font-family:'IBM Plex Mono', monospace; font-size:20px; font-weight:700; color:var(--primary); margin:6px 0 2px;}
@@ -217,9 +266,19 @@
   .loading{text-align:center; padding:40px; color:var(--muted); font-size:13px;}
   .error-box{background:#FBE2D8; border:1px solid var(--accent-dark); color:var(--accent-dark); padding:16px; border-radius:6px; font-size:13px; margin-bottom:16px;}
   a{color:var(--accent-dark);}
+
+  @media print {
+    body * { visibility: hidden; }
+    #printableReceipt, #printableReceipt * { visibility: visible; }
+    #printableReceipt { position: absolute; left: 0; top: 0; width: 100%; }
+  }
 </style>
 </head>
 <body>
+
+<div class="announcement-bar">
+  📢 Morning Harvest! Fresh farm vegetables delivered straight to your door.
+</div>
 
 <div class="topbar">
   <div class="brand">
@@ -239,6 +298,8 @@
   <div class="loading">Loading VegMart…</div>
 </div>
 
+<a href="#" class="help-fab" id="helpFab" target="_blank" title="Need help? Chat with us" style="display:none;">💬</a>
+
 <button class="cart-fab" id="cartFab" style="display:none;">
   🧺 Cart <span class="cart-badge" id="cartCount">0</span>
 </button>
@@ -255,6 +316,8 @@
 
 <div class="toast" id="toast"></div>
 
+<div id="printableReceipt" style="display:none;"></div>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
@@ -269,17 +332,22 @@ try{
   supabase = null;
 }
 
+const MIN_ORDER_VAL = 150;
+const FREE_DELIVERY_VAL = 300;
+const DELIVERY_FEE = 20;
+
 let catalog = [];
 let orders = [];
 let settings = { owner_phone:'', owner_pin:'' };
 let cart = {};
 let mode = 'shop';
 let activeCategory = 'All';
+let searchQuery = '';
+let adminOrderSearch = '';
 let adminTab = 'orders';
 let adminUnlocked = false;
 let loadError = null;
 
-// Secret access control: display Owner dashboard tab and directly switch to admin mode if URL contains ?admin=true
 const urlParams = new URLSearchParams(window.location.search);
 const isAdminUrl = urlParams.get('admin') === 'true';
 
@@ -326,6 +394,8 @@ async function loadAll(){
     orders = ordRes.data || [];
     settings = setRes.data || { owner_phone:'', owner_pin:'' };
     loadError = null;
+    
+    updateHelpFab();
   }catch(e){
     console.error('Database load error:', e);
     loadError = 'Could not reach the database: ' + (e.message || JSON.stringify(e));
@@ -335,23 +405,43 @@ async function loadAll(){
 
 function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
 
+function updateHelpFab(){
+  const helpFab = document.getElementById('helpFab');
+  if(settings.owner_phone){
+    const phone = settings.owner_phone.replace(/[^0-9]/g,'');
+    helpFab.href = `https://wa.me/${phone}?text=${encodeURIComponent('Hi VegMart, I have a question regarding vegetables availability.')}`;
+    helpFab.style.display = (mode==='shop') ? 'flex' : 'none';
+  } else {
+    helpFab.style.display = 'none';
+  }
+}
+
 document.getElementById('navTabs').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-mode]');
   if(!btn) return;
   mode = btn.dataset.mode;
   document.querySelectorAll('#navTabs button').forEach(b=>b.classList.toggle('active', b===btn));
+  updateHelpFab();
   render();
 });
 
 function renderShop(){
   const cats = ['All', ...new Set(catalog.map(v=>v.category))];
-  const items = activeCategory==='All' ? catalog : catalog.filter(v=>v.category===activeCategory);
+  let items = activeCategory==='All' ? catalog : catalog.filter(v=>v.category===activeCategory);
+
+  if(searchQuery.trim()){
+    const q = searchQuery.toLowerCase();
+    items = items.filter(v=>v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q));
+  }
 
   let html = `
     <div class="section-head">
       <div>
         <h2>Today's crate</h2>
         <p>Order fresh vegetables for local delivery — pick your items and check out below.</p>
+      </div>
+      <div class="search-box">
+        <input type="text" id="shopSearchInput" placeholder="Search vegetables..." value="${searchQuery}">
       </div>
     </div>
     <div class="chips">
@@ -360,14 +450,19 @@ function renderShop(){
   `;
 
   if(items.length===0){
-    html += `<div class="empty">No vegetables in this category yet.</div>`;
+    html += `<div class="empty">No vegetables match your search or category filter.</div>`;
   } else {
     html += `<div class="grid">`;
     items.forEach(v=>{
       const qty = cart[v.id] || 0;
+      let badgeHtml = '';
+      if(v.price > 40) badgeHtml = `<span class="item-badge bestseller">⭐ Premium</span>`;
+      else if(v.category.toLowerCase()==='leafy') badgeHtml = `<span class="item-badge organic">🌿 Fresh Today</span>`;
+
       html += `
         <div class="veg-card ${v.stock?'':'out'}">
           <div class="tag mono">${fmt(v.price)}</div>
+          ${badgeHtml}
           <div class="veg-emoji">${v.emoji||'🥗'}</div>
           <p class="veg-name">${v.name}</p>
           <div class="veg-cat">${v.category}</div>
@@ -387,6 +482,14 @@ function renderShop(){
   }
 
   document.getElementById('app').innerHTML = html;
+
+  document.getElementById('shopSearchInput').addEventListener('input', (e)=>{
+    searchQuery = e.target.value;
+    renderShop();
+    const inp = document.getElementById('shopSearchInput');
+    inp.focus();
+    inp.setSelectionRange(searchQuery.length, searchQuery.length);
+  });
 
   document.querySelectorAll('.chip').forEach(el=>{
     el.addEventListener('click', ()=>{ activeCategory = el.dataset.cat; renderShop(); });
@@ -409,15 +512,19 @@ function renderShop(){
 }
 
 function cartTotal(){
-  let total = 0, count = 0;
+  let subtotal = 0, count = 0;
   Object.keys(cart).forEach(id=>{
     const qty = cart[id];
     if(qty>0){
       const v = catalog.find(x=>x.id===id);
-      if(v){ total += v.price*qty; count += qty; }
+      if(v){ subtotal += v.price*qty; count += qty; }
     }
   });
-  return {total, count};
+
+  const deliveryFee = subtotal >= FREE_DELIVERY_VAL || subtotal === 0 ? 0 : DELIVERY_FEE;
+  const total = subtotal + deliveryFee;
+
+  return { subtotal, deliveryFee, total, count };
 }
 
 function updateCartFab(){
@@ -473,12 +580,23 @@ function renderDrawer(){
     el.addEventListener('click', ()=>{ delete cart[el.dataset.id]; renderDrawer(); updateCartFab(); });
   });
 
-  const {total} = cartTotal();
+  const { subtotal, deliveryFee, total } = cartTotal();
+  
+  let movNotice = '';
+  if(subtotal < MIN_ORDER_VAL){
+    movNotice = `<div class="mov-banner">Add ${fmt(MIN_ORDER_VAL - subtotal)} more to reach minimum order of ${fmt(MIN_ORDER_VAL)}</div>`;
+  }
+
   foot.innerHTML = `
-    <div class="total-row"><span>Total</span><span>${fmt(total)}</span></div>
-    <button class="btn btn-primary" style="width:100%;" id="checkoutBtn">Checkout</button>
+    ${movNotice}
+    <div class="total-row"><span>Items Subtotal</span><span>${fmt(subtotal)}</span></div>
+    <div class="total-row"><span>Delivery Fee</span><span>${deliveryFee === 0 ? 'FREE' : fmt(deliveryFee)}</span></div>
+    <div class="total-row grand"><span>Total</span><span>${fmt(total)}</span></div>
+    <button class="btn btn-primary" style="width:100%; margin-top:10px;" id="checkoutBtn" ${subtotal < MIN_ORDER_VAL ? 'disabled' : ''}>Checkout</button>
   `;
-  document.getElementById('checkoutBtn').addEventListener('click', openCheckout);
+  if(subtotal >= MIN_ORDER_VAL){
+    document.getElementById('checkoutBtn').addEventListener('click', openCheckout);
+  }
 }
 
 let capturedLocation = null;
@@ -506,7 +624,7 @@ function requestLocation(){
 }
 
 function openCheckout(){
-  const {total} = cartTotal();
+  const { subtotal, deliveryFee, total } = cartTotal();
   const body = document.getElementById('drawerBody');
   const foot = document.getElementById('drawerFoot');
   capturedLocation = null;
@@ -529,8 +647,10 @@ function openCheckout(){
   `;
   document.getElementById('locBtn').addEventListener('click', requestLocation);
   foot.innerHTML = `
-    <div class="total-row"><span>Total</span><span>${fmt(total)}</span></div>
-    <div style="display:flex; gap:8px;">
+    <div class="total-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+    <div class="total-row"><span>Delivery</span><span>${deliveryFee === 0 ? 'FREE' : fmt(deliveryFee)}</span></div>
+    <div class="total-row grand"><span>Total</span><span>${fmt(total)}</span></div>
+    <div style="display:flex; gap:8px; margin-top:10px;">
       <button class="btn btn-outline" style="flex:1;" id="backToCart">Back</button>
       <button class="btn btn-primary" style="flex:2;" id="placeOrderBtn">Place order</button>
     </div>
@@ -555,7 +675,7 @@ async function placeOrder(){
     const v = catalog.find(x=>x.id===id);
     return { id, name:v.name, unit:v.unit, qty:cart[id], price:v.price };
   });
-  const {total} = cartTotal();
+  const { total } = cartTotal();
 
   const order = {
     id:'ORD'+Date.now().toString().slice(-8),
@@ -614,7 +734,7 @@ function showOrderConfirmation(order){
       <hr>
       ${order.items.map(it=>`<div class="row"><span>${it.name} ×${it.qty}${it.unit}</span><span>${fmt(it.price*it.qty)}</span></div>`).join('')}
       <hr>
-      <div class="row" style="font-weight:700;"><span>Total</span><span>${fmt(order.total)}</span></div>
+      <div class="row" style="font-weight:700;"><span>Total Amount</span><span>${fmt(order.total)}</span></div>
       <hr>
       <div>${order.customer_name}</div>
       <div>${order.phone}</div>
@@ -714,7 +834,10 @@ function renderAdminAnalytics(){
   const stats = calcStats();
 
   el.innerHTML = `
-    <div class="stats-section-title">Revenue Summary</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div class="stats-section-title" style="margin:0;">Revenue Summary</div>
+      <button class="btn btn-outline" id="exportCsvBtn" style="font-size:12px;">📥 Export CSV</button>
+    </div>
     <div class="stats-grid">
       <div class="stat-card">
         <div class="lbl">Today's Revenue</div>
@@ -747,6 +870,27 @@ function renderAdminAnalytics(){
       </div>
     </div>
   `;
+
+  document.getElementById('exportCsvBtn').addEventListener('click', exportOrdersCsv);
+}
+
+function exportOrdersCsv(){
+  if(orders.length === 0){
+    showToast('No orders available to export.');
+    return;
+  }
+  let csv = 'Order ID,Customer Name,Phone,Slot,Total (INR),Status,Date\n';
+  orders.forEach(o => {
+    const date = new Date(o.created_at).toLocaleString('en-IN');
+    csv += `"${o.id}","${o.customer_name}","${o.phone}","${o.slot}",${o.total},"${o.status}","${date}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.setAttribute('download', `VegMart_Orders_${Date.now()}.csv`);
+  a.click();
 }
 
 function renderPinGate(){
@@ -784,28 +928,60 @@ function renderAdminOrders(){
     el.innerHTML = `<div class="empty">No orders yet. New orders placed by customers will show up here.</div>`;
     return;
   }
-  el.innerHTML = orders.map(o=>{
-    const nextIdx = STATUS_FLOW.indexOf(o.status)+1;
-    const next = STATUS_FLOW[nextIdx];
-    return `
-      <div class="order-card status-${o.status}">
-        <div class="order-top">
-          <div>
-            <div class="order-cust">${o.customer_name} · ${o.phone}</div>
-            <div class="order-id">${o.id} · ${new Date(o.created_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})} · ${o.slot}</div>
+
+  let filteredOrders = orders;
+  if(adminOrderSearch.trim()){
+    const q = adminOrderSearch.toLowerCase();
+    filteredOrders = orders.filter(o=> 
+      o.id.toLowerCase().includes(q) || 
+      o.customer_name.toLowerCase().includes(q) || 
+      o.phone.toLowerCase().includes(q)
+    );
+  }
+
+  let html = `
+    <div class="search-box" style="max-width:100%; margin-bottom:16px;">
+      <input type="text" id="adminSearchInput" placeholder="Search orders by name, phone, or ID..." value="${adminOrderSearch}">
+    </div>
+  `;
+
+  if(filteredOrders.length===0){
+    html += `<div class="empty">No orders found matching "${adminOrderSearch}".</div>`;
+  } else {
+    html += filteredOrders.map(o=>{
+      const nextIdx = STATUS_FLOW.indexOf(o.status)+1;
+      const next = STATUS_FLOW[nextIdx];
+      return `
+        <div class="order-card status-${o.status}">
+          <div class="order-top">
+            <div>
+              <div class="order-cust">${o.customer_name} · ${o.phone}</div>
+              <div class="order-id">${o.id} · ${new Date(o.created_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})} · ${o.slot}</div>
+            </div>
+            <div class="status-pill">${STATUS_LABEL[o.status]}</div>
           </div>
-          <div class="status-pill">${STATUS_LABEL[o.status]}</div>
+          <div class="order-items">${o.items.map(it=>`${it.name} ×${it.qty}${it.unit}`).join(', ')} — <strong>${fmt(o.total)}</strong></div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">${o.address}</div>
+          <div class="order-actions">
+            ${next ? `<button class="btn btn-dark" data-advance="${o.id}">Mark ${STATUS_LABEL[next]}</button>` : ''}
+            <a href="${whatsappLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">Message on WhatsApp</a>
+            ${mapLink(o) ? `<a href="${mapLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">📍 View on map</a>` : ''}
+            <button class="btn btn-outline" data-print="${o.id}">🖨️ Print Receipt</button>
+          </div>
         </div>
-        <div class="order-items">${o.items.map(it=>`${it.name} ×${it.qty}${it.unit}`).join(', ')} — <strong>${fmt(o.total)}</strong></div>
-        <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">${o.address}</div>
-        <div class="order-actions">
-          ${next ? `<button class="btn btn-dark" data-advance="${o.id}">Mark ${STATUS_LABEL[next]}</button>` : ''}
-          <a href="${whatsappLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">Message on WhatsApp</a>
-          ${mapLink(o) ? `<a href="${mapLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">📍 View on map</a>` : ''}
-        </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
+  }
+
+  el.innerHTML = html;
+
+  document.getElementById('adminSearchInput').addEventListener('input', (e)=>{
+    adminOrderSearch = e.target.value;
+    renderAdminOrders();
+    const inp = document.getElementById('adminSearchInput');
+    inp.focus();
+    inp.setSelectionRange(adminOrderSearch.length, adminOrderSearch.length);
+  });
 
   el.querySelectorAll('[data-advance]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
@@ -819,6 +995,32 @@ function renderAdminOrders(){
       renderAdmin();
     });
   });
+
+  el.querySelectorAll('[data-print]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const order = orders.find(o=>o.id===btn.dataset.print);
+      printReceipt(order);
+    });
+  });
+}
+
+function printReceipt(order){
+  const receiptEl = document.getElementById('printableReceipt');
+  receiptEl.innerHTML = `
+    <div class="receipt">
+      <div style="text-align:center; font-family:'Bitter',serif; font-size:18px; font-weight:700;">VegMart</div>
+      <div style="text-align:center; color:var(--muted); font-size:11px; margin-bottom:10px;">Order ${order.id}</div>
+      <hr>
+      ${order.items.map(it=>`<div class="row"><span>${it.name} ×${it.qty}${it.unit}</span><span>${fmt(it.price*it.qty)}</span></div>`).join('')}
+      <hr>
+      <div class="row" style="font-weight:700;"><span>Total</span><span>${fmt(order.total)}</span></div>
+      <hr>
+      <div><strong>Customer:</strong> ${order.customer_name} (${order.phone})</div>
+      <div><strong>Address:</strong> ${order.address}</div>
+      <div><strong>Slot:</strong> ${order.slot}</div>
+    </div>
+  `;
+  window.print();
 }
 
 function renderAdminInventory(){
@@ -933,6 +1135,7 @@ function renderAdminSettings(){
     settings.owner_phone = owner_phone;
     settings.owner_pin = owner_pin;
     showToast('Settings saved');
+    updateHelpFab();
   });
 }
 
