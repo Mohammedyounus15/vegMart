@@ -1,5 +1,5 @@
--- Run this once in Supabase: Project > SQL Editor > New query > paste all > Run
 
+-- Tables
 create table if not exists vegetables (
   id text primary key,
   name text not null,
@@ -19,7 +19,9 @@ create table if not exists orders (
   address text not null,
   slot text not null,
   status text not null default 'new',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  lat double precision,
+  lng double precision
 );
 
 create table if not exists settings (
@@ -28,9 +30,15 @@ create table if not exists settings (
   owner_pin text default ''
 );
 
+-- Ensure orders columns exist even if created before lat/lng were added
+alter table orders add column if not exists lat double precision;
+alter table orders add column if not exists lng double precision;
+
+-- Seed settings
 insert into settings (id) values ('main')
 on conflict (id) do nothing;
 
+-- Seed vegetables
 insert into vegetables (id, name, category, price, unit, stock, emoji) values
   ('v1','Tomato','Vegetable',34,'kg',true,'🍅'),
   ('v2','Onion','Vegetable',28,'kg',true,'🧅'),
@@ -43,24 +51,64 @@ insert into vegetables (id, name, category, price, unit, stock, emoji) values
   ('v9','Capsicum','Vegetable',45,'kg',true,'🫑')
 on conflict (id) do nothing;
 
--- Row Level Security: since this app has no login system, we open read/write
--- to anyone holding the public "anon" key (which ships inside your site's code
--- anyway). This is fine for a small local shop MVP, but it means someone who
--- inspects your site's JS could write to your database directly. If you grow
--- past a single-shop MVP, add Supabase Auth and tighten these policies.
-
+-- Enable RLS
 alter table vegetables enable row level security;
 alter table orders enable row level security;
 alter table settings enable row level security;
 
-create policy "public read vegetables" on vegetables for select using (true);
-create policy "public insert vegetables" on vegetables for insert with check (true);
-create policy "public update vegetables" on vegetables for update using (true);
-create policy "public delete vegetables" on vegetables for delete using (true);
+-- Vegetables policies (idempotent)
+drop policy if exists "public read vegetables" on vegetables;
+create policy "public read vegetables"
+on vegetables for select
+to public
+using (true);
 
-create policy "public read orders" on orders for select using (true);
-create policy "public insert orders" on orders for insert with check (true);
-create policy "public update orders" on orders for update using (true);
+drop policy if exists "public insert vegetables" on vegetables;
+create policy "public insert vegetables"
+on vegetables for insert
+to public
+with check (true);
 
-create policy "public read settings" on settings for select using (true);
-create policy "public update settings" on settings for update using (true);
+drop policy if exists "public update vegetables" on vegetables;
+create policy "public update vegetables"
+on vegetables for update
+to public
+using (true);
+
+drop policy if exists "public delete vegetables" on vegetables;
+create policy "public delete vegetables"
+on vegetables for delete
+to public
+using (true);
+
+-- Orders policies (idempotent)
+drop policy if exists "public read orders" on orders;
+create policy "public read orders"
+on orders for select
+to public
+using (true);
+
+drop policy if exists "public insert orders" on orders;
+create policy "public insert orders"
+on orders for insert
+to public
+with check (true);
+
+drop policy if exists "public update orders" on orders;
+create policy "public update orders"
+on orders for update
+to public
+using (true);
+
+-- Settings policies (idempotent)
+drop policy if exists "public read settings" on settings;
+create policy "public read settings"
+on settings for select
+to public
+using (true);
+
+drop policy if exists "public update settings" on settings;
+create policy "public update settings"
+on settings for update
+to public
+using (true);
