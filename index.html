@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VegMart — Fresh, Local, Delivered</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4A0E17">
+<meta name="theme-color" content="#2F5233">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,18 +13,18 @@
 <meta name="apple-mobile-web-app-title" content="VegMart">
 <style>
   :root{
-    --bg:#F8F6F4;            /* Soft off-white for comfortable reading */
-    --ink:#1A1A1A;           /* Deep black for high contrast text */
-    --primary:#4A0E17;       /* Rich Deep Maroon header & primary elements */
-    --primary-dark:#2A070D;  /* Darker Maroon/Near-Black for accents */
-    --accent:#C82333;        /* Stylish Crimson Red buttons & highlights */
-    --accent-dark:#9B1B27;   /* Hover red */
-    --accent2:#800020;       /* Burgundy / Wine accent */
-    --line:#DCD8D0;          /* Soft neutral borders */
-    --card:#FFFFFF;          /* Pure white card backgrounds */
-    --muted:#666666;         /* Muted gray text */
-    --danger:#C82333;        /* Alert red */
-    --ok:#4A0E17;            /* Success status maroon */
+    --bg:#F1F0E4;
+    --ink:#24301F;
+    --primary:#2F5233;
+    --primary-dark:#1E3A22;
+    --accent:#E4572E;
+    --accent-dark:#B93E1D;
+    --accent2:#7B3B5E;
+    --line:#C9C2A8;
+    --card:#FFFDF7;
+    --muted:#6B6A57;
+    --danger:#B93E1D;
+    --ok:#2F5233;
   }
   *{box-sizing:border-box;}
   body{
@@ -40,7 +40,7 @@
   .topbar{
     position:sticky; top:0; z-index:40;
     background:var(--primary);
-    color:#FFFFFF;
+    color:#F1F0E4;
     padding:14px 20px;
     display:flex; align-items:center; justify-content:space-between;
     border-bottom:3px solid var(--primary-dark);
@@ -48,27 +48,25 @@
   .brand{display:flex; align-items:center; gap:10px; cursor:pointer;}
   .brand .stamp{
     width:34px; height:34px; border-radius:50%;
-    border:2px solid #FFFFFF; display:flex; align-items:center; justify-content:center;
+    border:2px solid #F1F0E4; display:flex; align-items:center; justify-content:center;
     font-family:'Bitter', serif; font-weight:700; font-size:15px; transform:rotate(-6deg);
     user-select:none;
-    background:var(--accent);
-    color:#FFFFFF;
   }
   .brand h1{font-family:'Bitter', serif; font-size:20px; margin:0; letter-spacing:.3px;}
-  .brand .sub{font-size:11px; opacity:.85; margin-top:1px;}
+  .brand .sub{font-size:11px; opacity:.8; margin-top:1px;}
   .nav-tabs{display:flex; gap:6px;}
   .nav-tabs button{
-    background:transparent; border:1px solid rgba(255,255,255,.35);
-    color:#FFFFFF; padding:7px 14px; border-radius:3px; font-size:13px;
+    background:transparent; border:1px solid rgba(241,240,228,.35);
+    color:#F1F0E4; padding:7px 14px; border-radius:3px; font-size:13px;
     cursor:pointer; font-family:inherit; transition:background .15s;
   }
   .nav-tabs button.active{background:var(--accent); border-color:var(--accent);}
-  .nav-tabs button:hover:not(.active){background:rgba(255,255,255,.12);}
+  .nav-tabs button:hover:not(.active){background:rgba(241,240,228,.12);}
 
   .wrap{max-width:1000px; margin:0 auto; padding:24px 20px 80px;}
 
   .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
-  .section-head h2{font-family:'Bitter', serif; font-size:22px; margin:0; color:var(--primary-dark);}
+  .section-head h2{font-family:'Bitter', serif; font-size:22px; margin:0;}
   .section-head p{font-size:13px; color:var(--muted); margin:2px 0 0;}
   .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
   .chip{
@@ -95,7 +93,7 @@
     font-family:inherit; border:1px solid var(--line); border-radius:3px;
     padding:9px 11px; font-size:14px; background:#fff; color:var(--ink); width:100%;
   }
-  input:focus, select:focus, textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--primary); outline-offset:1px;}
   label{font-size:12px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;}
   .field{margin-bottom:14px;}
 
@@ -103,7 +101,6 @@
   .veg-card{
     background:var(--card); border:1px solid var(--line); border-radius:6px;
     padding:14px; position:relative; overflow:hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
   }
   .veg-card.out{opacity:.5;}
   .tag{
@@ -129,10 +126,10 @@
     position:fixed; bottom:22px; right:22px; z-index:50;
     background:var(--accent); color:#fff; border:none; border-radius:30px;
     padding:14px 20px; font-size:14px; font-weight:700; cursor:pointer;
-    box-shadow:0 3px 12px rgba(0,0,0,.25); display:flex; align-items:center; gap:8px;
+    box-shadow:0 3px 10px rgba(0,0,0,.25); display:flex; align-items:center; gap:8px;
   }
   .cart-badge{background:#fff; color:var(--accent); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px;}
-  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:60; display:none;}
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:60; display:none;}
   .overlay.show{display:block;}
   .drawer{
     position:fixed; top:0; right:0; height:100%; width:380px; max-width:92vw;
@@ -141,7 +138,7 @@
   }
   .drawer.show{transform:translateX(0);}
   .drawer-head{padding:18px; border-bottom:2px dashed var(--line); display:flex; justify-content:space-between; align-items:center;}
-  .drawer-head h3{font-family:'Bitter', serif; margin:0; font-size:19px; color:var(--primary-dark);}
+  .drawer-head h3{font-family:'Bitter', serif; margin:0; font-size:19px;}
   .drawer-close{background:none; border:none; font-size:20px; cursor:pointer; color:var(--ink);}
   .drawer-body{flex:1; overflow-y:auto; padding:14px 18px;}
   .cart-line{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);}
@@ -169,17 +166,17 @@
     border-left:4px solid var(--muted);
   }
   .order-card.status-new{border-left-color:var(--accent);}
-  .order-card.status-packed{border-left-color:#D97706;}
+  .order-card.status-packed{border-left-color:#B0862B;}
   .order-card.status-out{border-left-color:var(--accent2);}
-  .order-card.status-delivered{border-left-color:var(--primary);}
+  .order-card.status-delivered{border-left-color:var(--ok);}
   .order-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px;}
   .order-id{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--muted);}
   .order-cust{font-weight:600; font-size:14px;}
   .status-pill{font-size:11px; padding:3px 10px; border-radius:12px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; white-space:nowrap;}
-  .status-new .status-pill{background:#FDE8E8; color:var(--accent-dark);}
-  .status-packed .status-pill{background:#FEF3C7; color:#92400E;}
-  .status-out .status-pill{background:#F3E8FF; color:var(--accent2);}
-  .status-delivered .status-pill{background:#F3ECEE; color:var(--primary);}
+  .status-new .status-pill{background:#FBE2D8; color:var(--accent-dark);}
+  .status-packed .status-pill{background:#F5E6C4; color:#8A6A1E;}
+  .status-out .status-pill{background:#EBDCE5; color:var(--accent2);}
+  .status-delivered .status-pill{background:#DCE6DA; color:var(--primary);}
   .order-items{font-size:12.5px; color:var(--muted); margin-bottom:8px; font-family:'IBM Plex Mono', monospace;}
   .order-actions{display:flex; gap:6px; flex-wrap:wrap;}
   .order-actions button{font-size:11.5px; padding:6px 10px;}
@@ -190,8 +187,8 @@
   .inv-table input{padding:6px 8px; font-size:13px;}
   .inv-table .actions{display:flex; gap:6px;}
   .stock-toggle{font-size:11px; padding:4px 10px; border-radius:12px; cursor:pointer; border:1px solid var(--line); background:#fff;}
-  .stock-toggle.in{background:#F3ECEE; color:var(--primary); border-color:var(--primary);}
-  .stock-toggle.out{background:#FDE8E8; color:var(--danger); border-color:var(--danger);}
+  .stock-toggle.in{background:#DCE6DA; color:var(--primary); border-color:var(--primary);}
+  .stock-toggle.out{background:#F5DAD3; color:var(--danger); border-color:var(--danger);}
 
   .add-veg-form{background:var(--card); border:1px solid var(--line); border-radius:6px; padding:16px; margin-bottom:20px;}
   .add-veg-form .row{display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:10px; align-items:end;}
@@ -209,7 +206,7 @@
     background:var(--accent); color:#fff; border-radius:10px; font-size:10px; padding:1px 6px; margin-left:5px;
   }
   .loading{text-align:center; padding:40px; color:var(--muted); font-size:13px;}
-  .error-box{background:#FDE8E8; border:1px solid var(--accent-dark); color:var(--accent-dark); padding:16px; border-radius:6px; font-size:13px; margin-bottom:16px;}
+  .error-box{background:#FBE2D8; border:1px solid var(--accent-dark); color:var(--accent-dark); padding:16px; border-radius:6px; font-size:13px; margin-bottom:16px;}
   a{color:var(--accent-dark);}
 </style>
 </head>
@@ -312,6 +309,7 @@ async function loadAll(){
     if(vegRes.error) throw vegRes.error;
     catalog = vegRes.data || [];
 
+    // Attempt fetching orders and settings (will populate if authorized/PIN verified)
     const [ordRes, setRes] = await Promise.all([
       supabase.from('orders').select('*').order('created_at', {ascending:false}),
       supabase.from('settings').select('*').eq('id','main').single()
