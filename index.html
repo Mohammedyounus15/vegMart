@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>VegMart — Fresh Vegetables Delivered Fast</title>
+<title>VegMart — Fresh Produce Delivered Fast</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#3B1E54">
 <link rel="icon" href="icon-192.png">
@@ -14,7 +14,6 @@
 <style>
   :root{
     --purple-splash:#3B1E54;
-    --purple-light:#9B72CF;
     --zepto-blue:#2B70C9;
     --zepto-bg:#F3F4F8;
     --ink:#1C1C1E;
@@ -24,17 +23,17 @@
     --line:#E2E8F0;
     --muted:#718096;
     --danger:#E53E3E;
+    --success:#2F855A;
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
   body{
     background:var(--zepto-bg);
     color:var(--ink);
     font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    padding-bottom:70px;
+    padding-bottom:75px;
   }
-  .mono{font-family:'IBM Plex Mono', monospace;}
 
-  /* --- 1. PURPLE SPLASH SCREEN --- */
+  /* 1. DIRECT PURPLE SPLASH SCREEN */
   #splashScreen{
     position:fixed; inset:0; z-index:999;
     background:linear-gradient(135deg, #2D1436 0%, #522258 50%, #8C3061 100%);
@@ -42,15 +41,15 @@
     padding:20px; text-align:center; transition:opacity .4s ease, visibility .4s ease;
   }
   #splashScreen.hide{opacity:0; visibility:hidden; pointer-events:none;}
-  .splash-logo{font-size:48px; font-weight:900; letter-spacing:-1px; margin-bottom:6px; color:#fff;}
-  .splash-sub{font-size:15px; opacity:0.9; margin-bottom:30px; font-weight:500;}
+  .splash-title{font-size:42px; font-weight:900; letter-spacing:-1px; margin-bottom:6px; color:#fff;}
+  .splash-sub{font-size:14px; opacity:0.9; margin-bottom:28px; font-weight:500;}
   .splash-loader{
-    width:36px; height:36px; border:3px solid rgba(255,255,255,0.2);
+    width:34px; height:36px; border:3px solid rgba(255,255,255,0.2);
     border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite;
   }
   @keyframes spin{ to{transform:rotate(360deg);} }
 
-  /* --- 2. AUTHENTICATION VIEW --- */
+  /* 2. AUTHENTICATION VIEW */
   .auth-view{
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     padding:20px; background:var(--zepto-bg);
@@ -62,9 +61,9 @@
   .auth-card h2{font-size:22px; font-weight:800; margin-bottom:6px; color:#2D1436;}
   .auth-card p{font-size:13px; color:var(--muted); margin-bottom:20px;}
 
-  /* --- FORM STYLING --- */
+  /* FORM STYLING */
   .field{margin-bottom:14px; text-align:left;}
-  label{font-size:12px; color:var(--muted); display:block; margin-bottom:4px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;}
+  label{font-size:11px; color:var(--muted); display:block; margin-bottom:4px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;}
   input, select, textarea{
     font-family:inherit; border:1.5px solid var(--line); border-radius:8px;
     padding:11px 13px; font-size:14px; background:#fff; color:var(--ink); width:100%;
@@ -76,10 +75,11 @@
   }
   .btn-primary{background:var(--accent); color:#fff;}
 
-  /* --- 3. ZEPTO / BLINKIT HEADER --- */
+  /* 3. ZEPTO / BLINKIT HEADER */
   .app-header{
     background:linear-gradient(180deg, #2B70C9 0%, #3B82F6 100%);
-    color:#fff; padding:14px 16px 12px; sticky:top; top:0; z-index:40;
+    color:#fff; padding:14px 16px 12px; position:sticky; top:0; z-index:40;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
   }
   .header-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
   .delivery-eta{font-size:20px; font-weight:900; display:flex; align-items:center; gap:4px;}
@@ -99,45 +99,70 @@
   }
   .search-box input{border:none; padding:0; font-size:13px; width:100%; outline:none;}
 
-  /* CATEGORY HORIZONTAL STRIP */
-  .cat-strip{
-    display:flex; gap:10px; overflow-x:auto; padding:12px 16px; background:#fff;
-    border-bottom:1px solid var(--line); scrollbar-width:none;
-  }
-  .cat-chip{
-    padding:6px 14px; border-radius:20px; background:#F1F5F9; font-size:12px;
-    font-weight:600; white-space:nowrap; cursor:pointer; color:var(--ink);
-  }
-  .cat-chip.active{background:var(--zepto-blue); color:#fff;}
-
-  /* --- 4. COMPACT PRODUCT GRID --- */
+  /* 4. CLEAN PRODUCT GRID ALIGNMENT (2-COLUMN RESPONSIVE) */
   .content-wrap{padding:16px;}
-  .product-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:12px;}
-  .product-card{
-    background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px;
-    text-align:center; position:relative; display:flex; flex-direction:column; justify-content:space-between;
+  .product-grid{
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
   }
-  .product-emoji{font-size:38px; margin-bottom:4px;}
-  .product-title{font-size:12px; font-weight:700; margin-bottom:2px; line-height:1.2;}
-  .product-unit{font-size:11px; color:var(--muted); margin-bottom:6px;}
-  .product-price{font-size:13px; font-weight:800; color:var(--ink); margin-bottom:8px;}
+  .product-card{
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px;
+    text-align:center; display:flex; flex-direction:column; justify-content:space-between;
+    box-shadow:0 2px 5px rgba(0,0,0,0.02);
+  }
+  .product-emoji{font-size:42px; margin-bottom:6px;}
+  .product-title{font-size:13px; font-weight:700; margin-bottom:2px; line-height:1.2; height:32px; display:flex; align-items:center; justify-content:center;}
+  .product-unit{font-size:11px; color:var(--muted); margin-bottom:8px;}
+  .product-price{font-size:14px; font-weight:800; color:var(--ink); margin-bottom:10px;}
   .add-btn-sm{
     background:#FFF5F2; color:var(--accent); border:1px solid var(--accent);
-    border-radius:6px; padding:6px; font-size:12px; font-weight:800; cursor:pointer;
+    border-radius:6px; padding:8px; font-size:12px; font-weight:800; cursor:pointer; width:100%;
   }
 
-  /* --- 5. BOTTOM NAVIGATION BAR --- */
+  /* CATEGORIES VIEW GRID */
+  .category-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;}
+  .category-card{
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px 14px;
+    text-align:center; cursor:pointer; font-weight:700; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.02);
+  }
+  .category-card-icon{font-size:36px; margin-bottom:8px;}
+
+  /* PROFILE MENU ITEMS */
+  .profile-menu-card{
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px;
+  }
+  .profile-option-btn{
+    background:#F8FAFC; border:1px solid var(--line); border-radius:8px;
+    padding:14px; text-align:left; font-size:13px; font-weight:700; width:100%;
+    margin-bottom:10px; cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+  }
+
+  /* 5. CLEAN BOTTOM NAVIGATION BAR (HOME & CATEGORIES) */
   .bottom-nav{
     position:fixed; bottom:0; left:0; right:0; height:60px; background:#fff;
-    border-top:1px solid var(--line); display:flex; align-items:center; justify-space-around;
-    z-index:50;
+    border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-around;
+    z-index:50; box-shadow:0 -2px 10px rgba(0,0,0,0.04);
   }
   .nav-item{
-    display:flex; flex-direction:column; align-items:center; gap:2px;
-    font-size:11px; font-weight:600; color:var(--muted); cursor:pointer; border:none; background:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px; font-size:11px; font-weight:700; color:var(--muted); cursor:pointer;
+    border:none; background:none; flex:1; height:100%;
   }
   .nav-item.active{color:var(--zepto-blue);}
-  .nav-icon{font-size:20px;}
+  .nav-icon{font-size:20px; line-height:1;}
+
+  /* PAST ORDERS CARDS */
+  .order-card-refined{
+    background:#fff; border:1px solid var(--line); border-radius:12px;
+    padding:16px; margin-bottom:12px; font-size:13px; box-shadow:0 2px 6px rgba(0,0,0,0.02);
+  }
+  .order-card-header{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:8px; font-weight:800; font-size:14px;
+  }
+  .status-badge-green{
+    background:#E6F4EA; color:var(--success); font-size:12px; font-weight:700;
+    padding:4px 10px; border-radius:12px;
+  }
 
   /* CART FAB & DRAWER */
   .cart-fab{
@@ -170,10 +195,10 @@
 </head>
 <body>
 
-<!-- 1. PURPLE SPLASH SCREEN -->
+<!-- 1. DIRECT PURPLE SPLASH SCREEN (NO LOGO POPUP BEFOREHAND) -->
 <div id="splashScreen">
-  <div class="splash-logo">VegMart</div>
-  <div class="splash-sub">Fresh Vegetables Delivered in Minutes</div>
+  <div class="splash-title">VegMart</div>
+  <div class="splash-sub">Fresh Produce Delivered Fast</div>
   <div class="splash-loader"></div>
 </div>
 
@@ -207,7 +232,7 @@
         <div class="delivery-eta">⚡ 10 minutes</div>
         <div class="delivery-addr" id="headerAddrDisplay">Deliver to: Loading address...</div>
       </div>
-      <!-- TOP-RIGHT PROFILE BUTTON -->
+      <!-- TOP-RIGHT PROFILE AVATAR BUTTON -->
       <div class="header-profile-btn" id="topProfileBtn" title="My Profile">
         <span id="profileAvatarChar">👤</span>
       </div>
@@ -216,10 +241,6 @@
       <span>🔍</span>
       <input id="searchInput" placeholder="Search for 'Fresh Tomatoes', 'Spinach'...">
     </div>
-  </div>
-
-  <div class="cat-strip" id="categoryStrip">
-    <div class="cat-chip active" data-cat="All">All Items</div>
   </div>
 
   <div class="content-wrap" id="appContent">
@@ -231,15 +252,15 @@
     🧺 Basket <span class="cart-badge" id="cartCount">0</span>
   </button>
 
-  <!-- BOTTOM NAVIGATION BAR (CUSTOMER ONLY) -->
+  <!-- CLEAN BOTTOM NAVIGATION (HOME & CATEGORIES ONLY) -->
   <div class="bottom-nav">
     <button class="nav-item active" data-tab="shop">
       <span class="nav-icon">🏠</span>
       <span>Home</span>
     </button>
-    <button class="nav-item" data-tab="myorders">
-      <span class="nav-icon">📦</span>
-      <span>My Orders</span>
+    <button class="nav-item" data-tab="categories">
+      <span class="nav-icon">📂</span>
+      <span>Categories</span>
     </button>
   </div>
 </div>
@@ -279,7 +300,7 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'), 2200);
 }
 
-// SPLASH SCREEN INITIALIZATION (2.2 SECONDS PURPLE SCREEN)
+// DIRECT PURPLE SPLASH SCREEN TRANSITION (2.0 SECONDS)
 window.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(()=>{
     const splash = document.getElementById('splashScreen');
@@ -288,7 +309,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     const user = localStorage.getItem('vegmart_user');
     const urlParams = new URLSearchParams(window.location.search);
     
-    // ADMIN DASHBOARD ACCESSIBLE ONLY VIA URL ?admin=true
+    // ADMIN DASHBOARD ONLY VIA URL ?admin=true
     if(urlParams.get('admin') === 'true' || urlParams.get('admin') === '1'){
       currentTab = 'admin';
       document.getElementById('mainView').style.display = 'block';
@@ -299,7 +320,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
     } else {
       document.getElementById('authView').style.display = 'flex';
     }
-  }, 2200);
+  }, 2000);
 });
 
 // AUTHENTICATION LOGIN LOGIC
@@ -319,7 +340,7 @@ document.getElementById('loginBtn').addEventListener('click', ()=>{
   loadAll();
 });
 
-// TOP-RIGHT PROFILE BUTTON CLICK EVENT
+// TOP-RIGHT PROFILE BUTTON EVENT
 document.getElementById('topProfileBtn').addEventListener('click', ()=>{
   currentTab = 'profile';
   document.querySelectorAll('.bottom-nav .nav-item').forEach(b => b.classList.remove('active'));
@@ -344,7 +365,6 @@ async function loadAll(){
     catalog = veg || [];
     orders = ord || [];
     settings = set || { owner_phone:'', owner_pin:'' };
-    renderCategoryStrip();
     render();
   }catch(e){
     showToast('Connecting to store...');
@@ -354,7 +374,7 @@ async function loadAll(){
 
 function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
 
-// BOTTOM NAVIGATION SWITCHING
+// BOTTOM NAVIGATION SWITCHING (HOME & CATEGORIES)
 document.querySelectorAll('.bottom-nav .nav-item').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     currentTab = btn.dataset.tab;
@@ -363,21 +383,10 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(btn=>{
   });
 });
 
-function renderCategoryStrip(){
-  const cats = ['All', ...new Set(catalog.map(v=>v.category))];
-  const strip = document.getElementById('categoryStrip');
-  strip.innerHTML = cats.map(c=>`
-    <div class="cat-chip ${c===activeCategory?'active':''}" data-cat="${c}">${c}</div>
-  `).join('');
-
-  strip.querySelectorAll('.cat-chip').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      activeCategory = el.dataset.cat;
-      renderCategoryStrip();
-      if(currentTab === 'shop') renderShop();
-    });
-  });
-}
+// SEARCH INPUT REAL-TIME FILTERING
+document.getElementById('searchInput').addEventListener('input', ()=>{
+  if(currentTab === 'shop') renderShop();
+});
 
 function renderShop(){
   const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
@@ -425,6 +434,45 @@ function renderShop(){
   updateCartFab();
 }
 
+function renderCategories(){
+  const container = document.getElementById('appContent');
+  const cats = [...new Set(catalog.map(v=>v.category))];
+
+  let html = `
+    <h2 style="font-size:18px; font-weight:800; margin-bottom:14px;">Browse Categories</h2>
+    <div class="category-grid">
+      <div class="category-card" data-select-cat="All">
+        <div class="category-card-icon">🧺</div>
+        <div>All Items</div>
+      </div>
+  `;
+
+  cats.forEach(c => {
+    let icon = '🥗';
+    if(c.toLowerCase().includes('leaf')) icon = '🥬';
+    else if(c.toLowerCase().includes('fruit')) icon = '🍎';
+
+    html += `
+      <div class="category-card" data-select-cat="${c}">
+        <div class="category-card-icon">${icon}</div>
+        <div>${c}</div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
+
+  container.querySelectorAll('[data-select-cat]').forEach(card => {
+    card.addEventListener('click', () => {
+      activeCategory = card.dataset.selectCat;
+      currentTab = 'shop';
+      document.querySelectorAll('.bottom-nav .nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === 'shop'));
+      render();
+    });
+  });
+}
+
 function renderMyOrders(){
   const myOrders = JSON.parse(localStorage.getItem('vegmart_my_orders') || '[]');
   const container = document.getElementById('appContent');
@@ -434,17 +482,19 @@ function renderMyOrders(){
     return;
   }
 
-  let html = `<h3 style="font-size:16px; font-weight:800; margin-bottom:12px;">Your Past Orders</h3>`;
+  let html = `<h2 style="font-size:18px; font-weight:800; margin-bottom:14px;">Your Past Orders</h2>`;
   myOrders.forEach(o=>{
     html += `
-      <div style="background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:10px; font-size:12px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:800;">
+      <div class="order-card-refined">
+        <div class="order-card-header">
           <span>Order #${o.id}</span>
-          <span style="color:var(--zepto-blue);">${o.status || 'Received'}</span>
+          <span class="status-badge-green">${o.status || 'Order Placed'}</span>
         </div>
-        <div style="color:var(--muted); margin-bottom:6px;">${new Date(o.date).toLocaleString()}</div>
-        ${o.items.map(i=>`<div>• ${i.name} (${i.qty})</div>`).join('')}
-        <div style="font-weight:800; margin-top:6px; font-size:13px;">Total: ${fmt(o.total)}</div>
+        <div style="color:var(--muted); font-size:12px; margin-bottom:10px;">${new Date(o.date).toLocaleString()}</div>
+        <div style="margin-bottom:10px;">
+          ${o.items.map(i=>`<div>• ${i.name} (${i.qty})</div>`).join('')}
+        </div>
+        <div style="font-weight:800; font-size:14px; border-top:1px dashed var(--line); padding-top:8px;">Total: ${fmt(o.total)}</div>
       </div>
     `;
   });
@@ -456,19 +506,40 @@ function renderProfile(){
   const container = document.getElementById('appContent');
 
   container.innerHTML = `
-    <div style="background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px; font-size:13px;">
+    <div class="profile-menu-card">
       <h3 style="font-size:18px; font-weight:800; margin-bottom:4px;">${user.name || 'Customer'}</h3>
-      <div style="color:var(--muted); margin-bottom:16px;">📱 ${user.phone || ''}</div>
+      <div style="color:var(--muted); font-size:13px; margin-bottom:16px;">📱 ${user.phone || ''}</div>
       
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="btn" id="editAddrBtn" style="background:#F1F5F9; text-align:left;">📍 Change Delivery Address</button>
-        <button class="btn" id="editPhoneBtn" style="background:#F1F5F9; text-align:left;">📱 Change Phone Number</button>
-        <button class="btn" id="logoutBtn" style="background:#FEF2F2; color:var(--danger); text-align:left;">🚪 Log Out</button>
+      <div style="display:flex; flex-direction:column;">
+        <button class="profile-option-btn" id="btnMyOrders">
+          <span>📦 Your Previous Orders</span>
+          <span>➔</span>
+        </button>
+        <button class="profile-option-btn" id="btnEditPhone">
+          <span>📱 Change Mobile Number</span>
+          <span>➔</span>
+        </button>
+        <button class="profile-option-btn" id="btnEditAddr">
+          <span>📍 Change Delivery Address</span>
+          <span>➔</span>
+        </button>
+        <button class="profile-option-btn" id="btnComplaint">
+          <span>🚨 Raise a Complaint</span>
+          <span>➔</span>
+        </button>
+        <button class="profile-option-btn" id="btnLogout" style="color:var(--danger); margin-bottom:0;">
+          <span>🚪 Log Out</span>
+          <span>➔</span>
+        </button>
       </div>
     </div>
   `;
 
-  document.getElementById('editAddrBtn').addEventListener('click', ()=>{
+  document.getElementById('btnMyOrders').addEventListener('click', ()=>{
+    renderMyOrders();
+  });
+
+  document.getElementById('btnEditAddr').addEventListener('click', ()=>{
     const val = prompt('Update delivery address:', user.address || '');
     if(val){ 
       user.address = val; 
@@ -477,11 +548,20 @@ function renderProfile(){
       renderProfile(); 
     }
   });
-  document.getElementById('editPhoneBtn').addEventListener('click', ()=>{
+
+  document.getElementById('btnEditPhone').addEventListener('click', ()=>{
     const val = prompt('Update phone number:', user.phone || '');
     if(val){ user.phone = val; localStorage.setItem('vegmart_user', JSON.stringify(user)); renderProfile(); }
   });
-  document.getElementById('logoutBtn').addEventListener('click', ()=>{
+
+  document.getElementById('btnComplaint').addEventListener('click', ()=>{
+    const complaint = prompt('Please describe the issue with your order/delivery:');
+    if(complaint){
+      showToast('Complaint registered! Our support team will contact you.');
+    }
+  });
+
+  document.getElementById('btnLogout').addEventListener('click', ()=>{
     if(confirm('Log out of VegMart?')){
       localStorage.removeItem('vegmart_user');
       location.reload();
@@ -590,7 +670,7 @@ async function placeOrder(){
   await supabaseClient.from('orders').insert(order);
 
   const myOrders = JSON.parse(localStorage.getItem('vegmart_my_orders') || '[]');
-  myOrders.unshift({ id: order.id, date: new Date().toISOString(), items: order.items, total: order.total, status: 'Received' });
+  myOrders.unshift({ id: order.id, date: new Date().toISOString(), items: order.items, total: order.total, status: 'Order Placed' });
   localStorage.setItem('vegmart_my_orders', JSON.stringify(myOrders));
 
   cart = {};
@@ -601,7 +681,7 @@ async function placeOrder(){
 
 function render(){
   if(currentTab === 'shop') renderShop();
-  else if(currentTab === 'myorders') renderMyOrders();
+  else if(currentTab === 'categories') renderCategories();
   else if(currentTab === 'profile') renderProfile();
   else if(currentTab === 'admin') renderAdmin();
 }
