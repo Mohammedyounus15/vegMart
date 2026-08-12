@@ -50,6 +50,7 @@
     width:34px; height:34px; border-radius:50%;
     border:2px solid #F1F0E4; display:flex; align-items:center; justify-content:center;
     font-family:'Bitter', serif; font-weight:700; font-size:15px; transform:rotate(-6deg);
+    cursor:pointer; user-select:none;
   }
   .brand h1{font-family:'Bitter', serif; font-size:20px; margin:0; letter-spacing:.3px;}
   .brand .sub{font-size:11px; opacity:.8; margin-top:1px;}
@@ -133,7 +134,7 @@
     box-shadow:0 3px 10px rgba(0,0,0,.25); display:flex; align-items:center; gap:8px;
   }
   .cart-badge{background:#fff; color:var(--accent); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px;}
-  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:60; display:none;}
+  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:60; display:none;}
   .overlay.show{display:block;}
   .drawer{
     position:fixed; top:0; right:0; height:100%; width:380px; max-width:92vw;
@@ -151,6 +152,14 @@
   .cart-line .remove{background:none; border:none; color:var(--danger); font-size:12px; cursor:pointer; text-decoration:underline;}
   .drawer-foot{padding:16px 18px; border-top:2px dashed var(--line); background:var(--card);}
   .total-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:700; margin-bottom:12px;}
+
+  .login-modal{
+    position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+    width:90%; max-width:380px; background:var(--card); border:1px solid var(--line);
+    border-radius:8px; padding:24px; z-index:100; box-shadow:0 10px 25px rgba(0,0,0,.2);
+    display:none;
+  }
+  .login-modal.show{display:block;}
 
   .receipt{
     background:#fff; border:1px solid var(--line); border-radius:4px; padding:18px;
@@ -189,7 +198,6 @@
   .inv-table th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); padding:8px; border-bottom:2px solid var(--line);}
   .inv-table td{padding:8px; border-bottom:1px solid var(--line); vertical-align:middle;}
   .inv-table input{padding:6px 8px; font-size:13px;}
-  .inv-table .actions{display:flex; gap:6px;}
   .stock-toggle{font-size:11px; padding:4px 10px; border-radius:12px; cursor:pointer; border:1px solid var(--line); background:#fff;}
   .stock-toggle.in{background:#DCE6DA; color:var(--primary); border-color:var(--primary);}
   .stock-toggle.out{background:#F5DAD3; color:var(--danger); border-color:var(--danger);}
@@ -218,7 +226,7 @@
 
 <div class="topbar">
   <div class="brand">
-    <div class="stamp">V</div>
+    <div class="stamp" id="secretStamp" title="VegMart">V</div>
     <div>
       <h1>VegMart</h1>
       <div class="sub">fresh from the crate, straight to your door</div>
@@ -231,7 +239,7 @@
       <option value="hi">हिंदी</option>
       <option value="ur">اردو</option>
     </select>
-    <div class="nav-tabs" id="navTabs">
+    <div class="nav-tabs" id="navTabs" style="display:none;">
       <button data-mode="shop" class="active">Shop</button>
       <button data-mode="admin">Owner dashboard</button>
     </div>
@@ -247,6 +255,17 @@
 </button>
 
 <div class="overlay" id="overlay"></div>
+
+<!-- FIRST TIME LOGIN MODAL -->
+<div class="login-modal" id="loginModal">
+  <h3 style="font-family:'Bitter',serif; margin:0 0 8px;">Welcome to VegMart 👋</h3>
+  <p style="font-size:12px; color:var(--muted); margin:0 0 16px;">Please enter your details once to start ordering fresh local vegetables.</p>
+  <div class="field"><label>Your Name</label><input id="startName" placeholder="Full name"></div>
+  <div class="field"><label>Phone Number</label><input id="startPhone" placeholder="10-digit mobile number"></div>
+  <div class="field"><label>Delivery Address</label><textarea id="startAddr" rows="2" placeholder="House no, street, area"></textarea></div>
+  <button class="btn btn-primary" id="saveStartUser" style="width:100%;">Continue to Shop</button>
+</div>
+
 <div class="drawer" id="cartDrawer">
   <div class="drawer-head">
     <h3 id="drawerTitle">Your basket</h3>
@@ -261,7 +280,6 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-// --- MULTI-LANGUAGE DICTIONARY ---
 const TRANSLATIONS = {
   en: {
     todays_crate: "Today's crate",
@@ -275,8 +293,7 @@ const TRANSLATIONS = {
     delivery_address: "Delivery address",
     place_order: "Place order",
     added_to_basket: "Added to basket",
-    empty_basket: "Your basket is empty. Add some vegetables to get started.",
-    saved_info_notice: "⚡ Details saved! You won't need to enter them again next time."
+    empty_basket: "Your basket is empty. Add some vegetables to get started."
   },
   te: {
     todays_crate: "ఈరోజు తాజా కూరగాయలు",
@@ -290,8 +307,7 @@ const TRANSLATIONS = {
     delivery_address: "డెలివరీ అడ్రస్",
     place_order: "ఆర్డర్ పూర్తి చేయండి",
     added_to_basket: "బాస్కెట్‌లో జోడించబడింది",
-    empty_basket: "మీ బాస్కెట్ ఖాళీగా ఉంది. కొనసాగడానికి కొన్ని కూరగాయలను జోడించండి.",
-    saved_info_notice: "⚡ వివరాలు సేవ్ చేయబడ్డాయి! తదుపరి సారి మళ్లీ ఎంటర్ చేయనవసరం లేదు."
+    empty_basket: "మీ బాస్కెట్ ఖాళీగా ఉంది. కొనసాగడానికి కొన్ని కూరగాయలను జోడించండి."
   },
   hi: {
     todays_crate: "आज की ताज़ी सब्जियां",
@@ -305,8 +321,7 @@ const TRANSLATIONS = {
     delivery_address: "डिलीवरी का पता",
     place_order: "ऑर्डर प्लेस करें",
     added_to_basket: "कार्ट में जोड़ा गया",
-    empty_basket: "आपकी टोकरी खाली है। शुरू करने के लिए कुछ सब्जियां जोड़ें।",
-    saved_info_notice: "⚡ विवरण सुरक्षित किए गए! अगली बार आपको इन्हें फिर से दर्ज करने की आवश्यकता नहीं होगी।"
+    empty_basket: "आपकी टोकरी खाली है। शुरू करने के लिए कुछ सब्जियां जोड़ें।"
   },
   ur: {
     todays_crate: "آج کی تازہ سبزیاں",
@@ -320,13 +335,11 @@ const TRANSLATIONS = {
     delivery_address: "ترسیل کا پتہ",
     place_order: "آرڈر مکمل کریں",
     added_to_basket: "ٹوکری میں شامل کر دیا گیا",
-    empty_basket: "آپ کی ٹوکری خالی ہے۔ شروع کرنے کے لیے کچھ سبزیاں شامل کریں۔",
-    saved_info_notice: "⚡ تفصیلات محفوظ ہو گئیں! اگلی بار دوبارہ درج کرنے کی ضرورت نہیں ہوگی۔"
+    empty_basket: "آپ کی ٹوکری خالی ہے۔ شروع کرنے کے لیے کچھ سبزیاں شامل کریں۔"
   }
 };
 
 let currentLang = localStorage.getItem('vegmart_lang') || 'en';
-
 function t(key) {
   return TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key] ? TRANSLATIONS[currentLang][key] : TRANSLATIONS['en'][key] || key;
 }
@@ -360,6 +373,43 @@ function isConfigured(){
          window.SUPABASE_ANON_KEY && !window.SUPABASE_ANON_KEY.includes('YOUR-ANON');
 }
 
+// CHECK USER LOGIN OR UNLOCK MODAL
+function checkInitialUserLogin(){
+  const user = localStorage.getItem('vegmart_user');
+  if(!user){
+    document.getElementById('overlay').classList.add('show');
+    document.getElementById('loginModal').classList.add('show');
+  }
+}
+
+document.getElementById('saveStartUser').addEventListener('click', ()=>{
+  const name = document.getElementById('startName').value.trim();
+  const phone = document.getElementById('startPhone').value.trim();
+  const addr = document.getElementById('startAddr').value.trim();
+  if(!name || !phone || !addr){
+    showToast('Please enter your name, phone, and address.');
+    return;
+  }
+  localStorage.setItem('vegmart_user', JSON.stringify({ name, phone, address: addr }));
+  document.getElementById('loginModal').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+  showToast('Welcome to VegMart!');
+});
+
+// UNLOCK DASHBOARD ACCESS (SECRET STAMP OR URL PARAMETER)
+let stampClicks = 0;
+document.getElementById('secretStamp').addEventListener('click', ()=>{
+  stampClicks++;
+  if(stampClicks >= 3){
+    document.getElementById('navTabs').style.display = 'flex';
+    showToast('Owner Dashboard Unlocked');
+  }
+});
+
+if(new URLSearchParams(window.location.search).get('admin') === 'true'){
+  document.getElementById('navTabs').style.display = 'flex';
+}
+
 async function loadAll(){
   if(!isConfigured()){
     loadError = 'This site is not connected to a database yet. Edit config.js with your Supabase project URL and anon key.';
@@ -383,6 +433,7 @@ async function loadAll(){
     loadError = 'Could not reach the database: ' + (e.message || e);
   }
   render();
+  checkInitialUserLogin();
 }
 
 function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
@@ -498,7 +549,6 @@ function closeDrawer(){
 }
 document.getElementById('cartFab').addEventListener('click', openDrawer);
 document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
-document.getElementById('overlay').addEventListener('click', closeDrawer);
 
 function renderDrawer(){
   document.getElementById('drawerTitle').textContent = t('your_basket');
@@ -544,46 +594,17 @@ function renderDrawer(){
 
 let capturedLocation = null;
 
-function requestLocation(){
-  const statusEl = document.getElementById('locStatus');
-  if(!('geolocation' in navigator)){
-    statusEl.textContent = 'Location isn\'t supported on this browser.';
-    return;
-  }
-  statusEl.textContent = 'Getting your location…';
-  navigator.geolocation.getCurrentPosition(
-    (pos)=>{
-      capturedLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      statusEl.innerHTML = '📍 Location captured — this helps us find you faster.';
-      statusEl.style.color = 'var(--primary)';
-    },
-    (err)=>{
-      capturedLocation = null;
-      statusEl.textContent = 'Couldn\'t get your location (permission denied or unavailable). Your typed address will still be used.';
-      statusEl.style.color = 'var(--muted)';
-    },
-    { enableHighAccuracy:true, timeout:8000 }
-  );
-}
-
 function openCheckout(){
   const {total} = cartTotal();
   const body = document.getElementById('drawerBody');
   const foot = document.getElementById('drawerFoot');
-  capturedLocation = null;
 
-  // READ SAVED LOCAL USER DETAILS
   const savedUser = JSON.parse(localStorage.getItem('vegmart_user') || '{}');
 
   body.innerHTML = `
-    ${savedUser.name ? `<div style="font-size:11px; background:#DCE6DA; color:var(--primary); padding:6px 10px; border-radius:4px; margin-bottom:12px;">${t('saved_info_notice')}</div>` : ''}
     <div class="field"><label>${t('your_name')}</label><input id="custName" placeholder="Full name" value="${savedUser.name || ''}"></div>
     <div class="field"><label>${t('phone_number')}</label><input id="custPhone" placeholder="10-digit mobile number" value="${savedUser.phone || ''}"></div>
-    <div class="field"><label>${t('delivery_address')}</label><textarea id="custAddr" rows="3" placeholder="House no, street, area, landmark">${savedUser.address || ''}</textarea></div>
-    <div class="field">
-      <button type="button" class="btn btn-outline" id="locBtn" style="width:100%;">📍 Share my current location (optional)</button>
-      <div id="locStatus" style="font-size:12px; color:var(--muted); margin-top:6px;"></div>
-    </div>
+    <div class="field"><label>${t('delivery_address')}</label><textarea id="custAddr" rows="3" placeholder="House no, street, area">${savedUser.address || ''}</textarea></div>
     <div class="field">
       <label>Delivery slot</label>
       <select id="custSlot">
@@ -593,7 +614,6 @@ function openCheckout(){
       </select>
     </div>
   `;
-  document.getElementById('locBtn').addEventListener('click', requestLocation);
   foot.innerHTML = `
     <div class="total-row"><span>Total</span><span>${fmt(total)}</span></div>
     <div style="display:flex; gap:8px;">
@@ -616,7 +636,6 @@ async function placeOrder(){
     return;
   }
 
-  // AUTO-SAVE USER INFO LOCALLY (PERSISTENT AUTO-LOGIN)
   localStorage.setItem('vegmart_user', JSON.stringify({ name, phone, address: addr }));
 
   const ids = Object.keys(cart).filter(id=>cart[id]>0);
@@ -629,9 +648,7 @@ async function placeOrder(){
   const order = {
     id:'ORD'+Date.now().toString().slice(-8),
     items, total, customer_name:name, phone, address:addr, slot,
-    status:'new',
-    lat: capturedLocation ? capturedLocation.lat : null,
-    lng: capturedLocation ? capturedLocation.lng : null
+    status:'new'
   };
 
   const placeBtn = document.getElementById('placeOrderBtn');
@@ -640,7 +657,7 @@ async function placeOrder(){
 
   const { error } = await supabaseClient.from('orders').insert(order);
   if(error){
-    showToast("Couldn't place order. Check your connection and try again.");
+    showToast("Couldn't place order. Check your connection.");
     placeBtn.disabled = false;
     placeBtn.textContent = t('place_order');
     return;
@@ -651,11 +668,6 @@ async function placeOrder(){
   showOrderConfirmation(order);
 }
 
-function mapLink(order){
-  if(order.lat==null || order.lng==null) return null;
-  return `https://www.google.com/maps?q=${order.lat},${order.lng}`;
-}
-
 function whatsappLink(order){
   const lines = [
     `New VegMart order ${order.id}`,
@@ -663,8 +675,7 @@ function whatsappLink(order){
     `Total: ${fmt(order.total)}`,
     `Customer: ${order.customer_name}, ${order.phone}`,
     `Address: ${order.address}`,
-    `Slot: ${order.slot}`,
-    ...(mapLink(order) ? [`Location: ${mapLink(order)}`] : [])
+    `Slot: ${order.slot}`
   ];
   const text = encodeURIComponent(lines.join('\n'));
   const phone = (settings.owner_phone||'').replace(/[^0-9]/g,'');
@@ -693,10 +704,9 @@ function showOrderConfirmation(order){
   `;
 
   foot.innerHTML = hasOwnerPhone ? `
-    <a href="${whatsappLink(order)}" target="_blank" class="btn btn-primary" style="width:100%; display:block; text-align:center; text-decoration:none; box-sizing:border-box;">Send order via WhatsApp</a>
+    <a href="${whatsappLink(order)}" target="_blank" class="btn btn-primary" style="width:100%; display:block; text-align:center; text-decoration:none;">Send order via WhatsApp</a>
     <button class="btn btn-outline" style="width:100%; margin-top:8px;" id="doneBtn">Done</button>
   ` : `
-    <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">Your order is saved. The shop hasn't set up WhatsApp notifications yet — it'll show up in their order list.</div>
     <button class="btn btn-primary" style="width:100%;" id="doneBtn">Done</button>
   `;
   document.getElementById('doneBtn').addEventListener('click', ()=>{ closeDrawer(); renderShop(); });
@@ -741,7 +751,6 @@ function renderPinGate(){
         <input id="pinInput" type="password" placeholder="••••">
       </div>
       <button class="btn btn-primary" id="pinSubmit" style="width:100%;">Unlock</button>
-      <p style="font-size:11px; color:var(--muted); margin-top:14px;">This is a light gate, not real security — anyone who knows the PIN or reads the site's code can get in.</p>
     </div>
   `;
   document.getElementById('pinSubmit').addEventListener('click', ()=>{
@@ -753,9 +762,6 @@ function renderPinGate(){
       showToast('Incorrect PIN');
     }
   });
-  document.getElementById('pinInput').addEventListener('keydown', (e)=>{
-    if(e.key==='Enter') document.getElementById('pinSubmit').click();
-  });
 }
 
 const STATUS_FLOW = ['new','packed','out','delivered'];
@@ -764,7 +770,7 @@ const STATUS_LABEL = {new:'New', packed:'Packed', out:'Out for delivery', delive
 function renderAdminOrders(){
   const el = document.getElementById('adminBody');
   if(orders.length===0){
-    el.innerHTML = `<div class="empty">No orders yet. New orders placed by customers will show up here.</div>`;
+    el.innerHTML = `<div class="empty">No orders yet.</div>`;
     return;
   }
   el.innerHTML = orders.map(o=>{
@@ -775,7 +781,7 @@ function renderAdminOrders(){
         <div class="order-top">
           <div>
             <div class="order-cust">${o.customer_name} · ${o.phone}</div>
-            <div class="order-id">${o.id} · ${new Date(o.created_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})} · ${o.slot}</div>
+            <div class="order-id">${o.id} · ${o.slot}</div>
           </div>
           <div class="status-pill">${STATUS_LABEL[o.status]}</div>
         </div>
@@ -783,8 +789,6 @@ function renderAdminOrders(){
         <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">${o.address}</div>
         <div class="order-actions">
           ${next ? `<button class="btn btn-dark" data-advance="${o.id}">Mark ${STATUS_LABEL[next]}</button>` : ''}
-          <a href="${whatsappLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">Message on WhatsApp</a>
-          ${mapLink(o) ? `<a href="${mapLink(o)}" target="_blank" class="btn btn-outline" style="text-decoration:none;">📍 View on map</a>` : ''}
         </div>
       </div>
     `;
@@ -795,11 +799,9 @@ function renderAdminOrders(){
       const order = orders.find(o=>o.id===btn.dataset.advance);
       const idx = STATUS_FLOW.indexOf(order.status);
       const newStatus = STATUS_FLOW[idx+1];
-      const { error } = await supabaseClient.from('orders').update({status:newStatus}).eq('id', order.id);
-      if(error){ showToast("Couldn't update order status."); return; }
+      await supabaseClient.from('orders').update({status:newStatus}).eq('id', order.id);
       order.status = newStatus;
       renderAdminOrders();
-      renderAdmin();
     });
   });
 }
@@ -813,13 +815,13 @@ function renderAdminInventory(){
         <div><label>Category</label><input id="newCat" placeholder="Vegetable"></div>
         <div><label>Price (₹)</label><input id="newPrice" type="number" min="0" placeholder="30"></div>
         <div><label>Unit</label>
-          <select id="newUnit"><option>kg</option><option>piece</option><option>bunch</option><option>g</option></select>
+          <select id="newUnit"><option>kg</option><option>piece</option><option>bunch</option></select>
         </div>
         <button class="btn btn-primary" id="addVegBtn">Add</button>
       </div>
     </div>
     <table class="inv-table">
-      <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Unit</th><th>Stock</th><th></th></tr></thead>
+      <thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Unit</th><th>Stock</th></tr></thead>
       <tbody id="invRows"></tbody>
     </table>
   `;
@@ -829,16 +831,11 @@ function renderAdminInventory(){
     const cat = document.getElementById('newCat').value.trim() || 'Vegetable';
     const price = parseFloat(document.getElementById('newPrice').value);
     const unit = document.getElementById('newUnit').value;
-    if(!name || isNaN(price) || price<0){
-      showToast('Enter a name and a valid price.');
-      return;
-    }
+    if(!name || isNaN(price)) return;
     const newItem = { id:'v'+Date.now(), name, category:cat, price, unit, stock:true, emoji:'🥗' };
-    const { error } = await supabaseClient.from('vegetables').insert(newItem);
-    if(error){ showToast("Couldn't add item."); return; }
+    await supabaseClient.from('vegetables').insert(newItem);
     catalog.push(newItem);
     renderAdminInventory();
-    showToast(name + ' added to inventory');
   });
 
   const rows = document.getElementById('invRows');
@@ -846,43 +843,18 @@ function renderAdminInventory(){
     <tr data-id="${v.id}">
       <td>${v.emoji} ${v.name}</td>
       <td>${v.category}</td>
-      <td><input class="price-in" type="number" min="0" value="${v.price}" style="width:80px;"></td>
+      <td>${fmt(v.price)}</td>
       <td>${v.unit}</td>
       <td><button class="stock-toggle ${v.stock?'in':'out'}" data-toggle="${v.id}">${v.stock?'In stock':'Out of stock'}</button></td>
-      <td><button class="btn btn-outline" data-del="${v.id}" style="color:var(--danger); border-color:var(--danger);">Delete</button></td>
     </tr>
   `).join('');
 
-  rows.querySelectorAll('.price-in').forEach(input=>{
-    input.addEventListener('change', async ()=>{
-      const id = input.closest('tr').dataset.id;
-      const v = catalog.find(x=>x.id===id);
-      const val = parseFloat(input.value);
-      if(isNaN(val) || val<0) return;
-      const { error } = await supabaseClient.from('vegetables').update({price:val}).eq('id', id);
-      if(error){ showToast("Couldn't update price."); return; }
-      v.price = val;
-      showToast('Price updated');
-    });
-  });
   rows.querySelectorAll('[data-toggle]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const v = catalog.find(x=>x.id===btn.dataset.toggle);
-      const newStock = !v.stock;
-      const { error } = await supabaseClient.from('vegetables').update({stock:newStock}).eq('id', v.id);
-      if(error){ showToast("Couldn't update stock."); return; }
-      v.stock = newStock;
+      v.stock = !v.stock;
+      await supabaseClient.from('vegetables').update({stock:v.stock}).eq('id', v.id);
       renderAdminInventory();
-    });
-  });
-  rows.querySelectorAll('[data-del]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const id = btn.dataset.del;
-      const { error } = await supabaseClient.from('vegetables').delete().eq('id', id);
-      if(error){ showToast("Couldn't remove item."); return; }
-      catalog = catalog.filter(x=>x.id!==id);
-      renderAdminInventory();
-      showToast('Item removed');
     });
   });
 }
@@ -892,27 +864,20 @@ function renderAdminSettings(){
   el.innerHTML = `
     <div class="settings-box">
       <div class="field">
-        <label>WhatsApp number for order notifications</label>
-        <input id="phoneInput" placeholder="e.g. 919876543210 (country code, no +)" value="${settings.owner_phone||''}">
+        <label>WhatsApp number</label>
+        <input id="phoneInput" value="${settings.owner_phone||''}">
       </div>
-      <p style="font-size:12px; color:var(--muted); margin:0 0 14px;">
-        Customers get a "Send order via WhatsApp" button after checkout that opens a chat to this number with the order details filled in.
-      </p>
       <div class="field">
-        <label>Admin PIN (optional)</label>
-        <input id="pinInputSet" placeholder="Leave blank for no PIN" value="${settings.owner_pin||''}">
+        <label>Admin PIN</label>
+        <input id="pinInputSet" value="${settings.owner_pin||''}">
       </div>
-      <p style="font-size:12px; color:var(--muted); margin:0 0 14px;">
-        A light gate for the owner dashboard. Not secure encryption — don't rely on it for sensitive data.
-      </p>
       <button class="btn btn-primary" id="saveSettingsBtn">Save</button>
     </div>
   `;
   document.getElementById('saveSettingsBtn').addEventListener('click', async ()=>{
     const owner_phone = document.getElementById('phoneInput').value.trim();
     const owner_pin = document.getElementById('pinInputSet').value.trim();
-    const { error } = await supabaseClient.from('settings').update({owner_phone, owner_pin}).eq('id','main');
-    if(error){ showToast("Couldn't save settings."); return; }
+    await supabaseClient.from('settings').update({owner_phone, owner_pin}).eq('id','main');
     settings.owner_phone = owner_phone;
     settings.owner_pin = owner_pin;
     showToast('Settings saved');
@@ -931,12 +896,6 @@ function render(){
 }
 
 loadAll();
-
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
-  });
-}
 </script>
 </body>
 </html>
