@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#2F5233">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="VegMart">
 <style>
@@ -42,7 +42,7 @@
     background:var(--primary);
     color:#F1F0E4;
     padding:14px 20px;
-    display:flex; align-items:center; justify-space-between;
+    display:flex; align-items:center; justify-content:space-between;
     border-bottom:3px solid var(--primary-dark);
   }
   .brand{display:flex; align-items:center; gap:10px;}
@@ -331,11 +331,11 @@ function t(key) {
   return TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key] ? TRANSLATIONS[currentLang][key] : TRANSLATIONS['en'][key] || key;
 }
 
-let supabase;
+let supabaseClient;
 try{
-  supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 }catch(e){
-  supabase = null;
+  supabaseClient = null;
 }
 
 let catalog = [];
@@ -368,9 +368,9 @@ async function loadAll(){
   }
   try{
     const [{data:veg, error:e1}, {data:ord, error:e2}, {data:set, error:e3}] = await Promise.all([
-      supabase.from('vegetables').select('*').order('name'),
-      supabase.from('orders').select('*').order('created_at', {ascending:false}),
-      supabase.from('settings').select('*').eq('id','main').single()
+      supabaseClient.from('vegetables').select('*').order('name'),
+      supabaseClient.from('orders').select('*').order('created_at', {ascending:false}),
+      supabaseClient.from('settings').select('*').eq('id','main').single()
     ]);
     if(e1) throw e1;
     if(e2) throw e2;
@@ -638,7 +638,7 @@ async function placeOrder(){
   placeBtn.disabled = true;
   placeBtn.textContent = 'Placing order…';
 
-  const { error } = await supabase.from('orders').insert(order);
+  const { error } = await supabaseClient.from('orders').insert(order);
   if(error){
     showToast("Couldn't place order. Check your connection and try again.");
     placeBtn.disabled = false;
@@ -795,7 +795,7 @@ function renderAdminOrders(){
       const order = orders.find(o=>o.id===btn.dataset.advance);
       const idx = STATUS_FLOW.indexOf(order.status);
       const newStatus = STATUS_FLOW[idx+1];
-      const { error } = await supabase.from('orders').update({status:newStatus}).eq('id', order.id);
+      const { error } = await supabaseClient.from('orders').update({status:newStatus}).eq('id', order.id);
       if(error){ showToast("Couldn't update order status."); return; }
       order.status = newStatus;
       renderAdminOrders();
@@ -834,7 +834,7 @@ function renderAdminInventory(){
       return;
     }
     const newItem = { id:'v'+Date.now(), name, category:cat, price, unit, stock:true, emoji:'🥗' };
-    const { error } = await supabase.from('vegetables').insert(newItem);
+    const { error } = await supabaseClient.from('vegetables').insert(newItem);
     if(error){ showToast("Couldn't add item."); return; }
     catalog.push(newItem);
     renderAdminInventory();
@@ -859,7 +859,7 @@ function renderAdminInventory(){
       const v = catalog.find(x=>x.id===id);
       const val = parseFloat(input.value);
       if(isNaN(val) || val<0) return;
-      const { error } = await supabase.from('vegetables').update({price:val}).eq('id', id);
+      const { error } = await supabaseClient.from('vegetables').update({price:val}).eq('id', id);
       if(error){ showToast("Couldn't update price."); return; }
       v.price = val;
       showToast('Price updated');
@@ -869,7 +869,7 @@ function renderAdminInventory(){
     btn.addEventListener('click', async ()=>{
       const v = catalog.find(x=>x.id===btn.dataset.toggle);
       const newStock = !v.stock;
-      const { error } = await supabase.from('vegetables').update({stock:newStock}).eq('id', v.id);
+      const { error } = await supabaseClient.from('vegetables').update({stock:newStock}).eq('id', v.id);
       if(error){ showToast("Couldn't update stock."); return; }
       v.stock = newStock;
       renderAdminInventory();
@@ -878,7 +878,7 @@ function renderAdminInventory(){
   rows.querySelectorAll('[data-del]').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       const id = btn.dataset.del;
-      const { error } = await supabase.from('vegetables').delete().eq('id', id);
+      const { error } = await supabaseClient.from('vegetables').delete().eq('id', id);
       if(error){ showToast("Couldn't remove item."); return; }
       catalog = catalog.filter(x=>x.id!==id);
       renderAdminInventory();
@@ -911,7 +911,7 @@ function renderAdminSettings(){
   document.getElementById('saveSettingsBtn').addEventListener('click', async ()=>{
     const owner_phone = document.getElementById('phoneInput').value.trim();
     const owner_pin = document.getElementById('pinInputSet').value.trim();
-    const { error } = await supabase.from('settings').update({owner_phone, owner_pin}).eq('id','main');
+    const { error } = await supabaseClient.from('settings').update({owner_phone, owner_pin}).eq('id','main');
     if(error){ showToast("Couldn't save settings."); return; }
     settings.owner_phone = owner_phone;
     settings.owner_pin = owner_pin;
