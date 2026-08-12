@@ -4,12 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VegMart — Fresh, Local, Delivered</title>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VegMart — Fresh, Local, Delivered</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2F5233">
 <link rel="icon" href="icon-192.png">
@@ -41,6 +35,10 @@
     -webkit-font-smoothing:antialiased;
   }
   .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* --- PAGE CONTROL (STRICT ISOLATION - NO OVERLAP) --- */
+  .page-view { display: none; width: 100%; min-height: 100vh; }
+  .page-view.active { display: block; }
 
   /* --- LOGIN PAGE STYLES --- */
   .login-screen{
@@ -76,9 +74,10 @@
   .btn-primary{background:var(--accent); color:#fff;}
   .btn-primary:hover{background:var(--accent-dark);}
   .btn-outline{background:transparent; border:1px solid var(--line); color:var(--ink);}
+  .btn-danger{background:var(--danger); color:#fff;}
   .btn-dark{background:var(--primary); color:#fff;}
 
-  /* --- APP MAIN INTERFACE --- */
+  /* --- NAVIGATION TOPBAR --- */
   .topbar{
     position:sticky; top:0; z-index:40;
     background:var(--primary); color:#F1F0E4;
@@ -117,6 +116,7 @@
   .chip.active{background:var(--primary); color:#fff; border-color:var(--primary);}
   .empty{text-align:center; padding:50px 20px; color:var(--muted); font-size:14px; border:1px dashed var(--line); border-radius:6px; background:var(--card);}
 
+  /* CATALOG GRID */
   .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:16px;}
   .veg-card{
     background:var(--card); border:1px solid var(--line); border-radius:6px;
@@ -139,8 +139,25 @@
   .add-btn{margin-top:10px;}
   .out-label{font-size:12px; color:var(--danger); font-weight:600; text-align:center; padding:8px 0;}
 
-  /* --- ADMIN PIN LOCK SCREEN --- */
-  .pin-box{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:32px; max-width:360px; margin:40px auto; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,.08);}
+  /* --- PROFILE PAGE STYLES (ZOMATO/BLINKIT STYLE) --- */
+  .profile-card{
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:20px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,.03);
+  }
+  .profile-header{display:flex; align-items:center; gap:16px; margin-bottom:20px;}
+  .profile-avatar{
+    width:60px; height:60px; border-radius:50%; background:var(--primary);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:24px; font-weight:700; font-family:'Bitter', serif;
+  }
+  .profile-menu{display:flex; flex-direction:column; gap:10px;}
+  .profile-item{
+    background:#fff; border:1px solid var(--line); border-radius:8px;
+    padding:16px; display:flex; align-items:center; justify-space-between;
+    cursor:pointer; transition:background .15s; font-weight:600; font-size:14px;
+  }
+  .profile-item:hover{background:#F8F7F0;}
+  .profile-item-left{display:flex; align-items:center; gap:12px;}
 
   /* --- MY ORDERS STYLES --- */
   .order-history-card{
@@ -150,6 +167,7 @@
   .order-history-head{display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed var(--line); padding-bottom:8px; margin-bottom:10px;}
   .status-badge{background:#DCE6DA; color:var(--primary); font-size:11px; font-weight:700; padding:3px 8px; border-radius:12px; text-transform:uppercase;}
 
+  /* FAB & DRAWER */
   .cart-fab{
     position:fixed; bottom:22px; right:22px; z-index:50; background:var(--accent);
     color:#fff; border:none; border-radius:30px; padding:14px 20px; font-size:14px;
@@ -172,6 +190,7 @@
   .drawer-foot{padding:16px 18px; border-top:2px dashed var(--line); background:var(--card);}
   .total-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:700; margin-bottom:12px;}
 
+  .pin-box{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:32px; max-width:360px; margin:40px auto; text-align:center;}
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:80;
     background:var(--ink); color:#fff; padding:11px 20px; border-radius:4px; font-size:13px;
@@ -185,33 +204,35 @@
 </head>
 <body>
 
-<!-- PAGE 1: LOGIN PAGE ONLY -->
-<div class="login-screen" id="loginPage">
-  <div class="login-card">
-    <div class="login-brand-stamp">V</div>
-    <h1>VegMart</h1>
-    <p class="login-tagline">Log in quick to get fresh vegetables delivered right to your home!</p>
-    
-    <div class="veggie-banner">🥦 🍅 🥕 🌽 🥔</div>
+<!-- PAGE 1: LOGIN PAGE ONLY (STRICTLY ISOLATED) -->
+<div class="page-view active" id="loginPage">
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="login-brand-stamp">V</div>
+      <h1>VegMart</h1>
+      <p class="login-tagline">Log in quick to get fresh vegetables delivered right to your home!</p>
+      
+      <div class="veggie-banner">🥦 🍅 🥕 🌽 🥔</div>
 
-    <div class="field">
-      <label>Your Full Name *</label>
-      <input id="loginName" placeholder="Enter your full name">
+      <div class="field">
+        <label>Your Full Name *</label>
+        <input id="loginName" placeholder="Enter your full name">
+      </div>
+      <div class="field">
+        <label>Phone Number *</label>
+        <input id="loginPhone" placeholder="Enter 10-digit mobile number">
+      </div>
+      <div class="field">
+        <label>Delivery Address / House No *</label>
+        <textarea id="loginAddr" rows="2" placeholder="House no, street, locality"></textarea>
+      </div>
+      <button class="btn btn-primary" id="loginBtn">Login & Start Shopping</button>
     </div>
-    <div class="field">
-      <label>Phone Number *</label>
-      <input id="loginPhone" placeholder="Enter 10-digit mobile number">
-    </div>
-    <div class="field">
-      <label>Delivery Address / House No *</label>
-      <textarea id="loginAddr" rows="2" placeholder="House no, street, locality"></textarea>
-    </div>
-    <button class="btn btn-primary" id="loginBtn">Login & Start Shopping</button>
   </div>
 </div>
 
-<!-- PAGE 2: MAIN APP & VEGETABLE STORE -->
-<div id="mainApp" style="display:none;">
+<!-- PAGE 2: MAIN APP & STORE CONTAINER -->
+<div class="page-view" id="mainApp">
   <div class="topbar">
     <div class="brand">
       <div class="stamp" id="secretStamp" title="VegMart">V</div>
@@ -229,8 +250,9 @@
       </select>
       <div class="nav-tabs" id="navTabs">
         <button data-mode="shop" class="active">Shop</button>
-        <button data-mode="myorders">My Orders</button>
-        <button data-mode="admin" id="adminTabBtn" style="display:none;">Owner dashboard</button>
+        <button data-mode="myorders">Orders</button>
+        <button data-mode="profile">Profile</button>
+        <button data-mode="admin" id="adminTabBtn" style="display:none;">Admin</button>
       </div>
     </div>
   </div>
@@ -291,6 +313,12 @@ function showToast(msg){
   setTimeout(()=>tEl.classList.remove('show'), 2200);
 }
 
+// SWITCH PAGE VIEWS WITHOUT OVERLAP
+function showView(viewId){
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+}
+
 // LOGIN SCREEN LOGIC
 document.getElementById('loginBtn').addEventListener('click', ()=>{
   const name = document.getElementById('loginName').value.trim();
@@ -307,27 +335,24 @@ document.getElementById('loginBtn').addEventListener('click', ()=>{
 });
 
 function switchToStoreView(){
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
+  showView('mainApp');
   loadAll();
 }
 
-// UNLOCK OWNER DASHBOARD (3 STAMP CLICKS OR URL PARAMETER ?admin=true)
+// UNLOCK OWNER DASHBOARD
 let stampClicks = 0;
 document.getElementById('secretStamp').addEventListener('click', ()=>{
   stampClicks++;
   if(stampClicks >= 3){
     document.getElementById('adminTabBtn').style.display = 'inline-block';
-    showToast('Owner Dashboard Option Unlocked');
+    showToast('Admin Tab Unlocked');
   }
 });
 
-// CHECK FOR ADMIN ROUTE DIRECTLY ON LOAD (?admin=true OR admin=1)
 const urlParams = new URLSearchParams(window.location.search);
 if(urlParams.get('admin') === 'true' || urlParams.get('admin') === '1'){
   mode = 'admin';
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
+  showView('mainApp');
   document.getElementById('adminTabBtn').style.display = 'inline-block';
 }
 
@@ -461,7 +486,94 @@ function renderMyOrders(){
   container.innerHTML = html;
 }
 
-// SECURE ADMIN DASHBOARD & PIN GATE
+// RENDER PROFILE PAGE (BLINKIT/ZOMATO STYLE)
+function renderProfile(){
+  const user = JSON.parse(localStorage.getItem('vegmart_user') || '{}');
+  const container = document.getElementById('app');
+
+  const initial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+
+  container.innerHTML = `
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">${initial}</div>
+        <div>
+          <h3 style="margin:0 0 4px; font-family:'Bitter',serif;">${user.name || 'User'}</h3>
+          <p style="margin:0; font-size:13px; color:var(--muted);">📱 ${user.phone || 'Not set'}</p>
+          <p style="margin:4px 0 0; font-size:12px; color:var(--muted);">📍 ${user.address || 'Not set'}</p>
+        </div>
+      </div>
+
+      <div class="profile-menu">
+        <div class="profile-item" id="profItemOrders">
+          <div class="profile-item-left">📦 <span>My Orders</span></div>
+          <span>➔</span>
+        </div>
+        <div class="profile-item" id="profItemAddr">
+          <div class="profile-item-left">📍 <span>Change Delivery Address</span></div>
+          <span>➔</span>
+        </div>
+        <div class="profile-item" id="profItemPhone">
+          <div class="profile-item-left">📱 <span>Change Mobile Number</span></div>
+          <span>➔</span>
+        </div>
+        <div class="profile-item" id="profItemName">
+          <div class="profile-item-left">👤 <span>Edit Account Name</span></div>
+          <span>➔</span>
+        </div>
+        <div class="profile-item" id="profItemLogout" style="color:var(--danger);">
+          <div class="profile-item-left">🚪 <span>Log Out</span></div>
+          <span>➔</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('profItemOrders').addEventListener('click', ()=>{
+    mode = 'myorders';
+    document.querySelectorAll('#navTabs button').forEach(b => b.classList.toggle('active', b.dataset.mode === 'myorders'));
+    render();
+  });
+
+  document.getElementById('profItemAddr').addEventListener('click', ()=>{
+    const newAddr = prompt('Enter your updated delivery address:', user.address || '');
+    if(newAddr !== null && newAddr.trim() !== ''){
+      user.address = newAddr.trim();
+      localStorage.setItem('vegmart_user', JSON.stringify(user));
+      showToast('Address updated!');
+      renderProfile();
+    }
+  });
+
+  document.getElementById('profItemPhone').addEventListener('click', ()=>{
+    const newPhone = prompt('Enter your 10-digit mobile number:', user.phone || '');
+    if(newPhone !== null && newPhone.trim() !== ''){
+      user.phone = newPhone.trim();
+      localStorage.setItem('vegmart_user', JSON.stringify(user));
+      showToast('Phone number updated!');
+      renderProfile();
+    }
+  });
+
+  document.getElementById('profItemName').addEventListener('click', ()=>{
+    const newName = prompt('Enter your full name:', user.name || '');
+    if(newName !== null && newName.trim() !== ''){
+      user.name = newName.trim();
+      localStorage.setItem('vegmart_user', JSON.stringify(user));
+      showToast('Name updated!');
+      renderProfile();
+    }
+  });
+
+  document.getElementById('profItemLogout').addEventListener('click', ()=>{
+    if(confirm('Are you sure you want to log out?')){
+      localStorage.removeItem('vegmart_user');
+      showView('loginPage');
+      showToast('Logged out successfully');
+    }
+  });
+}
+
 function renderAdmin(){
   if(settings.owner_pin && !adminUnlocked){
     renderPinGate();
@@ -680,623 +792,17 @@ function render(){
   }
   if(mode==='shop') renderShop();
   else if(mode==='myorders') renderMyOrders();
+  else if(mode==='profile') renderProfile();
   else if(mode==='admin') renderAdmin();
 }
 
-// INITIAL APP STARTUP CHECK
+// INITIAL APP STARTUP
 if(mode === 'admin'){
   loadAll();
 } else if(localStorage.getItem('vegmart_user')){
   switchToStoreView();
-}
-</script>
-</body>
-</html><meta name="theme-color" content="#2F5233">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="VegMart">
-<style>
-  :root{
-    --bg:#F1F0E4;
-    --ink:#24301F;
-    --primary:#2F5233;
-    --primary-dark:#1E3A22;
-    --accent:#E4572E;
-    --accent-dark:#B93E1D;
-    --accent2:#7B3B5E;
-    --line:#C9C2A8;
-    --card:#FFFDF7;
-    --muted:#6B6A57;
-    --danger:#B93E1D;
-    --ok:#2F5233;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:'Work Sans', -apple-system, sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  .mono{font-family:'IBM Plex Mono', monospace;}
-
-  /* --- LOGIN PAGE STYLES --- */
-  .login-screen{
-    min-height:100vh;
-    display:flex; flex-direction:column; justify-content:center; align-items:center;
-    padding:24px 20px; text-align:center; background:var(--bg);
-  }
-  .login-card{
-    background:var(--card); border:1px solid var(--line); border-radius:12px;
-    padding:28px 24px; max-width:400px; width:100%; box-shadow:0 8px 20px rgba(0,0,0,.06);
-  }
-  .login-brand-stamp{
-    width:56px; height:56px; border-radius:50%; background:var(--primary); color:#F1F0E4;
-    display:flex; align-items:center; justify-content:center; margin:0 auto 12px;
-    font-family:'Bitter', serif; font-weight:700; font-size:24px; border:3px solid var(--primary-dark);
-  }
-  .login-card h1{font-family:'Bitter', serif; font-size:26px; margin:0 0 6px; color:var(--ink);}
-  .login-tagline{font-size:14px; color:var(--muted); margin-bottom:20px; line-height:1.4;}
-  .veggie-banner{font-size:36px; margin-bottom:18px; letter-spacing:4px;}
-  
-  .field{margin-bottom:14px; text-align:left;}
-  label{font-size:12px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;}
-  input, select, textarea{
-    font-family:inherit; border:1px solid var(--line); border-radius:4px;
-    padding:10px 12px; font-size:14px; background:#fff; color:var(--ink); width:100%;
-  }
-  input:focus, select:focus, textarea:focus{outline:2px solid var(--primary); outline-offset:1px;}
-
-  .btn{
-    font-family:inherit; border:none; cursor:pointer; border-radius:4px;
-    padding:11px 18px; font-size:14px; font-weight:600; letter-spacing:.2px; width:100%;
-  }
-  .btn-primary{background:var(--accent); color:#fff;}
-  .btn-primary:hover{background:var(--accent-dark);}
-  .btn-outline{background:transparent; border:1px solid var(--line); color:var(--ink);}
-  .btn-dark{background:var(--primary); color:#fff;}
-
-  /* --- APP MAIN INTERFACE --- */
-  .topbar{
-    position:sticky; top:0; z-index:40;
-    background:var(--primary); color:#F1F0E4;
-    padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
-    border-bottom:3px solid var(--primary-dark);
-  }
-  .brand{display:flex; align-items:center; gap:10px;}
-  .brand .stamp{
-    width:34px; height:34px; border-radius:50%; border:2px solid #F1F0E4;
-    display:flex; align-items:center; justify-content:center; font-family:'Bitter', serif;
-    font-weight:700; font-size:15px; cursor:pointer; user-select:none;
-  }
-  .brand h1{font-family:'Bitter', serif; font-size:20px; margin:0;}
-  .brand .sub{font-size:11px; opacity:.8; margin-top:1px;}
-  .top-right-controls{display:flex; align-items:center; gap:10px;}
-  .lang-select{
-    background:var(--primary-dark); color:#F1F0E4; border:1px solid rgba(241,240,228,.35);
-    padding:6px 8px; border-radius:3px; font-size:12px; cursor:pointer; width:auto;
-  }
-  .nav-tabs{display:flex; gap:6px;}
-  .nav-tabs button{
-    background:transparent; border:1px solid rgba(241,240,228,.35);
-    color:#F1F0E4; padding:7px 12px; border-radius:3px; font-size:12px; cursor:pointer;
-  }
-  .nav-tabs button.active{background:var(--accent); border-color:var(--accent);}
-
-  .wrap{max-width:1000px; margin:0 auto; padding:24px 20px 80px;}
-  .section-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
-  .section-head h2{font-family:'Bitter', serif; font-size:22px; margin:0;}
-  .section-head p{font-size:13px; color:var(--muted); margin:2px 0 0;}
-  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
-  .chip{
-    background:var(--card); border:1px solid var(--line); padding:6px 14px;
-    border-radius:20px; font-size:13px; cursor:pointer; color:var(--ink);
-  }
-  .chip.active{background:var(--primary); color:#fff; border-color:var(--primary);}
-  .empty{text-align:center; padding:50px 20px; color:var(--muted); font-size:14px; border:1px dashed var(--line); border-radius:6px; background:var(--card);}
-
-  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:16px;}
-  .veg-card{
-    background:var(--card); border:1px solid var(--line); border-radius:6px;
-    padding:14px; position:relative; overflow:hidden;
-  }
-  .veg-card.out{opacity:.5;}
-  .tag{
-    position:absolute; top:10px; right:-30px; background:var(--accent); color:#fff;
-    transform:rotate(45deg); font-family:'IBM Plex Mono', monospace; font-size:11px;
-    font-weight:600; padding:3px 34px;
-  }
-  .veg-emoji{font-size:34px; margin-bottom:6px;}
-  .veg-name{font-family:'Bitter', serif; font-size:16px; margin:0 0 2px;}
-  .veg-cat{font-size:11px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;}
-  .veg-price{font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:600; color:var(--primary); margin-bottom:10px;}
-  .veg-price span{font-size:11px; color:var(--muted); font-weight:400;}
-  .stepper{display:flex; align-items:center; gap:8px;}
-  .stepper button{width:28px; height:28px; border-radius:3px; border:1px solid var(--line); background:#fff; font-size:16px; cursor:pointer;}
-  .stepper .qty{flex:1; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:14px;}
-  .add-btn{margin-top:10px;}
-  .out-label{font-size:12px; color:var(--danger); font-weight:600; text-align:center; padding:8px 0;}
-
-  /* --- MY ORDERS STYLES --- */
-  .order-history-card{
-    background:var(--card); border:1px solid var(--line); border-radius:8px;
-    padding:16px; margin-bottom:14px; font-size:13px;
-  }
-  .order-history-head{display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed var(--line); padding-bottom:8px; margin-bottom:10px;}
-  .status-badge{background:#DCE6DA; color:var(--primary); font-size:11px; font-weight:700; padding:3px 8px; border-radius:12px; text-transform:uppercase;}
-
-  .cart-fab{
-    position:fixed; bottom:22px; right:22px; z-index:50; background:var(--accent);
-    color:#fff; border:none; border-radius:30px; padding:14px 20px; font-size:14px;
-    font-weight:700; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,.25); display:flex; align-items:center; gap:8px;
-  }
-  .cart-badge{background:#fff; color:var(--accent); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:12px;}
-  .overlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:60; display:none;}
-  .overlay.show{display:block;}
-  .drawer{
-    position:fixed; top:0; right:0; height:100%; width:380px; max-width:92vw;
-    background:var(--bg); z-index:61; box-shadow:-4px 0 16px rgba(0,0,0,.2);
-    transform:translateX(100%); transition:transform .25s ease; display:flex; flex-direction:column;
-  }
-  .drawer.show{transform:translateX(0);}
-  .drawer-head{padding:18px; border-bottom:2px dashed var(--line); display:flex; justify-content:space-between; align-items:center;}
-  .drawer-head h3{font-family:'Bitter', serif; margin:0; font-size:19px;}
-  .drawer-close{background:none; border:none; font-size:20px; cursor:pointer;}
-  .drawer-body{flex:1; overflow-y:auto; padding:14px 18px;}
-  .cart-line{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line);}
-  .drawer-foot{padding:16px 18px; border-top:2px dashed var(--line); background:var(--card);}
-  .total-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:16px; font-weight:700; margin-bottom:12px;}
-
-  .toast{
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:80;
-    background:var(--ink); color:#fff; padding:11px 20px; border-radius:4px; font-size:13px;
-    opacity:0; pointer-events:none; transition:opacity .2s;
-  }
-  .toast.show{opacity:1;}
-  .loading{text-align:center; padding:40px; color:var(--muted); font-size:13px;}
-  .error-box{background:#FBE2D8; border:1px solid var(--accent-dark); color:var(--accent-dark); padding:16px; border-radius:6px; font-size:13px;}
-  .address-box{background:#EFECE1; border:1px solid var(--line); padding:10px; border-radius:6px; margin-bottom:12px; font-size:13px;}
-</style>
-</head>
-<body>
-
-<!-- PAGE 1: LOGIN PAGE ONLY -->
-<div class="login-screen" id="loginPage">
-  <div class="login-card">
-    <div class="login-brand-stamp">V</div>
-    <h1>VegMart</h1>
-    <p class="login-tagline">Log in quick to get fresh vegetables delivered right to your home!</p>
-    
-    <div class="veggie-banner">🥦 🍅 🥕 🌽 🥔</div>
-
-    <div class="field">
-      <label>Your Full Name *</label>
-      <input id="loginName" placeholder="Enter your full name">
-    </div>
-    <div class="field">
-      <label>Phone Number *</label>
-      <input id="loginPhone" placeholder="Enter 10-digit mobile number">
-    </div>
-    <div class="field">
-      <label>Delivery Address / House No *</label>
-      <textarea id="loginAddr" rows="2" placeholder="House no, street, locality"></textarea>
-    </div>
-    <button class="btn btn-primary" id="loginBtn">Login & Start Shopping</button>
-  </div>
-</div>
-
-<!-- PAGE 2: MAIN APP & VEGETABLE STORE -->
-<div id="mainApp" style="display:none;">
-  <div class="topbar">
-    <div class="brand">
-      <div class="stamp" id="secretStamp" title="VegMart">V</div>
-      <div>
-        <h1>VegMart</h1>
-        <div class="sub">fresh from the crate, straight to your door</div>
-      </div>
-    </div>
-    <div class="top-right-controls">
-      <select id="langSelect" class="lang-select">
-        <option value="en">English</option>
-        <option value="te">తెలుగు</option>
-        <option value="hi">हिंदी</option>
-        <option value="ur">اردو</option>
-      </select>
-      <div class="nav-tabs" id="navTabs">
-        <button data-mode="shop" class="active">Shop</button>
-        <button data-mode="myorders">My Orders</button>
-        <button data-mode="admin" id="adminTabBtn" style="display:none;">Owner dashboard</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="wrap" id="app">
-    <div class="loading">Loading VegMart…</div>
-  </div>
-
-  <button class="cart-fab" id="cartFab" style="display:none;">
-    🧺 Cart <span class="cart-badge" id="cartCount">0</span>
-  </button>
-
-  <div class="overlay" id="overlay"></div>
-
-  <div class="drawer" id="cartDrawer">
-    <div class="drawer-head">
-      <h3 id="drawerTitle">Your basket</h3>
-      <button class="drawer-close" id="closeDrawer">✕</button>
-    </div>
-    <div class="drawer-body" id="drawerBody"></div>
-    <div class="drawer-foot" id="drawerFoot"></div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script>
-const TRANSLATIONS = {
-  en: { todays_crate: "Today's crate", sub_desc: "Order fresh vegetables for local delivery", add_to_basket: "Add to basket", out_of_stock: "Out of stock", your_basket: "Your basket", checkout: "Proceed to Order", place_order: "Confirm & Place Order", added_to_basket: "Added to basket", empty_basket: "Your basket is empty." },
-  te: { todays_crate: "ఈరోజు తాజా కూరగాయలు", sub_desc: "తాజా కూరగాయలను ఆర్డర్ చేయండి", add_to_basket: "యాడ్ చేయండి", out_of_stock: "స్టాక్ లేదు", your_basket: "మీ బాస్కెట్", checkout: "ఆర్డర్‌కు కొనసాగండి", place_order: "ఆర్డర్ కన్ఫర్మ్ చేయండి", added_to_basket: "బాస్కెట్‌లో జోడించబడింది", empty_basket: "మీ బాస్కెట్ ఖాళీగా ఉంది." },
-  hi: { todays_crate: "आज की ताज़ी सब्जियां", sub_desc: "ताज़ी सब्जियां ऑर्डर करें", add_to_basket: "कार्ट में जोड़ें", out_of_stock: "उपलब्ध नहीं है", your_basket: "आपकी टोकरी", checkout: "आगे बढ़ें", place_order: "ऑर्डर पक्का करें", added_to_basket: "कार्ट में जोड़ा गया", empty_basket: "आपकी टोकरी खाली है।" },
-  ur: { todays_crate: "آج کی تازہ سبزیاں", sub_desc: "تازہ سبزیاں آرڈر کریں", add_to_basket: "ٹوکری میں شامل کریں", out_of_stock: "دستیاب نہیں ہے", your_basket: "آپ کی ٹوکری", checkout: "آگے بڑھیں", place_order: "آرڈر کی تصدیق کریں", added_to_basket: "ٹوکری میں شامل کر دیا گیا", empty_basket: "آپ کی ٹوکری خالی ہے۔" }
-};
-
-let currentLang = localStorage.getItem('vegmart_lang') || 'en';
-function t(key) { return TRANSLATIONS[currentLang][key] || key; }
-
-let supabaseClient;
-try{ supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY); }catch(e){ supabaseClient = null; }
-
-let catalog = [];
-let orders = [];
-let settings = { owner_phone:'', owner_pin:'' };
-let cart = {};
-let mode = 'shop';
-let activeCategory = 'All';
-let loadError = null;
-let currentCoords = null;
-
-function showToast(msg){
-  const tEl = document.getElementById('toast');
-  tEl.textContent = msg;
-  tEl.classList.add('show');
-  setTimeout(()=>tEl.classList.remove('show'), 2200);
-}
-
-// LOGIN SCREEN LOGIC
-document.getElementById('loginBtn').addEventListener('click', ()=>{
-  const name = document.getElementById('loginName').value.trim();
-  const phone = document.getElementById('loginPhone').value.trim();
-  const addr = document.getElementById('loginAddr').value.trim();
-
-  if(!name || !phone || !addr){
-    showToast('All fields are mandatory to proceed!');
-    return;
-  }
-
-  localStorage.setItem('vegmart_user', JSON.stringify({ name, phone, address: addr }));
-  switchToStoreView();
-});
-
-function switchToStoreView(){
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-  loadAll();
-}
-
-// UNLOCK OWNER DASHBOARD (3 STAMP CLICKS OR ?admin=true)
-let stampClicks = 0;
-document.getElementById('secretStamp').addEventListener('click', ()=>{
-  stampClicks++;
-  if(stampClicks >= 3){
-    document.getElementById('adminTabBtn').style.display = 'inline-block';
-    showToast('Owner Dashboard Unlocked');
-  }
-});
-
-if(new URLSearchParams(window.location.search).get('admin') === 'true'){
-  document.getElementById('adminTabBtn').style.display = 'inline-block';
-}
-
-async function loadAll(){
-  if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('YOUR-PROJECT')){
-    loadError = 'Database not configured in config.js.';
-    render();
-    return;
-  }
-  try{
-    const [{data:veg, error:e1}, {data:ord, error:e2}, {data:set, error:e3}] = await Promise.all([
-      supabaseClient.from('vegetables').select('*').order('name'),
-      supabaseClient.from('orders').select('*').order('created_at', {ascending:false}),
-      supabaseClient.from('settings').select('*').eq('id','main').single()
-    ]);
-    if(e1 || e2 || e3) throw e1 || e2 || e3;
-    catalog = veg || [];
-    orders = ord || [];
-    settings = set || { owner_phone:'', owner_pin:'' };
-    loadError = null;
-  }catch(e){
-    loadError = 'Could not reach database: ' + (e.message || e);
-  }
-  render();
-}
-
-function fmt(n){ return '₹' + Number(n).toLocaleString('en-IN'); }
-
-document.getElementById('navTabs').addEventListener('click', (e)=>{
-  const btn = e.target.closest('button[data-mode]');
-  if(!btn) return;
-  mode = btn.dataset.mode;
-  document.querySelectorAll('#navTabs button').forEach(b=>b.classList.toggle('active', b===btn));
-  render();
-});
-
-document.getElementById('langSelect').addEventListener('change', (e) => {
-  currentLang = e.target.value;
-  localStorage.setItem('vegmart_lang', currentLang);
-  render();
-});
-
-function renderShop(){
-  const cats = ['All', ...new Set(catalog.map(v=>v.category))];
-  const items = activeCategory==='All' ? catalog : catalog.filter(v=>v.category===activeCategory);
-
-  let html = `
-    <div class="section-head">
-      <div>
-        <h2>${t('todays_crate')}</h2>
-        <p>${t('sub_desc')}</p>
-      </div>
-    </div>
-    <div class="chips">
-      ${cats.map(c=>`<div class="chip ${c===activeCategory?'active':''}" data-cat="${c}">${c}</div>`).join('')}
-    </div>
-  `;
-
-  if(items.length===0){
-    html += `<div class="empty">No vegetables in this category yet.</div>`;
-  } else {
-    html += `<div class="grid">`;
-    items.forEach(v=>{
-      const qty = cart[v.id] || 0;
-      html += `
-        <div class="veg-card ${v.stock?'':'out'}">
-          <div class="tag mono">${fmt(v.price)}</div>
-          <div class="veg-emoji">${v.emoji||'🥗'}</div>
-          <p class="veg-name">${v.name}</p>
-          <div class="veg-cat">${v.category}</div>
-          <div class="veg-price">${fmt(v.price)} <span>/ ${v.unit}</span></div>
-          ${v.stock ? `
-            <div class="stepper">
-              <button data-act="dec" data-id="${v.id}">−</button>
-              <div class="qty">${qty}</div>
-              <button data-act="inc" data-id="${v.id}">+</button>
-            </div>
-            <button class="btn btn-dark add-btn" data-act="add" data-id="${v.id}">${t('add_to_basket')}</button>
-          ` : `<div class="out-label">${t('out_of_stock')}</div>`}
-        </div>
-      `;
-    });
-    html += `</div>`;
-  }
-
-  document.getElementById('app').innerHTML = html;
-
-  document.querySelectorAll('.chip').forEach(el=>el.addEventListener('click', ()=>{ activeCategory = el.dataset.cat; renderShop(); }));
-  document.querySelectorAll('[data-act="inc"]').forEach(el=>el.addEventListener('click', ()=>{ cart[el.dataset.id] = (cart[el.dataset.id]||0)+1; renderShop(); updateCartFab(); }));
-  document.querySelectorAll('[data-act="dec"]').forEach(el=>el.addEventListener('click', ()=>{ cart[el.dataset.id] = Math.max(0,(cart[el.dataset.id]||0)-1); renderShop(); updateCartFab(); }));
-  document.querySelectorAll('[data-act="add"]').forEach(el=>el.addEventListener('click', ()=>{ cart[el.dataset.id] = cart[el.dataset.id] || 1; renderShop(); updateCartFab(); showToast(t('added_to_basket')); }));
-
-  updateCartFab();
-}
-
-// RENDER MY PAST ORDERS SECTION (READS FROM LOCAL STORAGE)
-function renderMyOrders(){
-  const myOrders = JSON.parse(localStorage.getItem('vegmart_my_orders') || '[]');
-  const container = document.getElementById('app');
-
-  let html = `
-    <div class="section-head">
-      <div>
-        <h2>My Previous Orders</h2>
-        <p>View your past purchases saved directly on this phone.</p>
-      </div>
-    </div>
-  `;
-
-  if(myOrders.length === 0){
-    html += `<div class="empty">You haven't placed any orders yet.</div>`;
-  } else {
-    myOrders.forEach(o => {
-      html += `
-        <div class="order-history-card">
-          <div class="order-history-head">
-            <div>
-              <strong>Order ID: ${o.id}</strong><br>
-              <span style="font-size:11px; color:var(--muted);">${new Date(o.date).toLocaleString()}</span>
-            </div>
-            <span class="status-badge">${o.status || 'Received'}</span>
-          </div>
-          <div style="margin-bottom:8px;">
-            ${o.items.map(i => `<div>• ${i.name} (${i.qty})</div>`).join('')}
-          </div>
-          <div class="mono" style="font-size:14px; font-weight:700;">Total: ${fmt(o.total)}</div>
-        </div>
-      `;
-    });
-  }
-
-  container.innerHTML = html;
-}
-
-function updateCartFab(){
-  let count = Object.values(cart).reduce((a,b)=>a+b, 0);
-  const fab = document.getElementById('cartFab');
-  fab.style.display = (mode==='shop' && !loadError) ? 'flex' : 'none';
-  document.getElementById('cartCount').textContent = count;
-}
-
-document.getElementById('cartFab').addEventListener('click', ()=>{
-  renderDrawer();
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('cartDrawer').classList.add('show');
-});
-document.getElementById('closeDrawer').addEventListener('click', ()=>{
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('cartDrawer').classList.remove('show');
-});
-
-function renderDrawer(){
-  let total = 0;
-  const ids = Object.keys(cart).filter(id=>cart[id]>0);
-  const body = document.getElementById('drawerBody');
-  const foot = document.getElementById('drawerFoot');
-
-  if(ids.length===0){
-    body.innerHTML = `<div class="empty">${t('empty_basket')}</div>`;
-    foot.innerHTML = '';
-    return;
-  }
-
-  let html = '';
-  ids.forEach(id=>{
-    const v = catalog.find(x=>x.id===id);
-    if(v){
-      total += v.price * cart[id];
-      html += `<div class="cart-line"><div><strong>${v.name}</strong><br>${cart[id]} ${v.unit}</div><div class="mono">${fmt(cart[id]*v.price)}</div></div>`;
-    }
-  });
-  body.innerHTML = html;
-  foot.innerHTML = `
-    <div class="total-row"><span>Total</span><span>${fmt(total)}</span></div>
-    <button class="btn btn-primary" id="confirmAddrBtn">${t('checkout')}</button>
-  `;
-  document.getElementById('confirmAddrBtn').addEventListener('click', openAddressConfirmation);
-}
-
-function openAddressConfirmation(){
-  const savedUser = JSON.parse(localStorage.getItem('vegmart_user') || '{}');
-  const body = document.getElementById('drawerBody');
-  const foot = document.getElementById('drawerFoot');
-
-  body.innerHTML = `
-    <h4 style="margin:0 0 8px;">Confirm Delivery Address</h4>
-    <p style="font-size:12px; color:var(--muted); margin:0 0 12px;">Is your delivery address same or do you want to change it for this order?</p>
-    
-    <div class="address-box">
-      <strong>📍 Delivery Address:</strong><br>
-      <span id="displayAddr">${savedUser.address || ''}</span>
-    </div>
-
-    <div class="field">
-      <label>Edit Address (if changed):</label>
-      <textarea id="editAddr" rows="2">${savedUser.address || ''}</textarea>
-    </div>
-
-    <div style="font-size:11px; color:var(--muted); margin-top:8px;">
-      🔒 <strong>Note:</strong> GPS location coordinates will be captured and sent automatically.
-    </div>
-  `;
-
-  foot.innerHTML = `
-    <button class="btn btn-primary" id="placeOrderFinal">${t('place_order')}</button>
-  `;
-
-  document.getElementById('placeOrderFinal').addEventListener('click', getGPSAndPlaceOrder);
-}
-
-function getGPSAndPlaceOrder(){
-  const btn = document.getElementById('placeOrderFinal');
-  btn.disabled = true;
-  btn.textContent = 'Fetching location & placing order…';
-
-  const updatedAddress = document.getElementById('editAddr').value.trim();
-  if(!updatedAddress){
-    showToast('Delivery address is mandatory!');
-    btn.disabled = false;
-    btn.textContent = t('place_order');
-    return;
-  }
-
-  const savedUser = JSON.parse(localStorage.getItem('vegmart_user') || '{}');
-  savedUser.address = updatedAddress;
-  localStorage.setItem('vegmart_user', JSON.stringify(savedUser));
-
-  if('geolocation' in navigator){
-    navigator.geolocation.getCurrentPosition(
-      (pos)=>{
-        currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        executeOrderPlacement(savedUser, currentCoords);
-      },
-      (err)=>{
-        alert("Location access is required so our delivery partner can navigate to your door. Proceeding with typed address.");
-        executeOrderPlacement(savedUser, null);
-      },
-      { enableHighAccuracy:true, timeout:6000 }
-    );
-  } else {
-    executeOrderPlacement(savedUser, null);
-  }
-}
-
-async function executeOrderPlacement(user, coords){
-  const ids = Object.keys(cart).filter(id=>cart[id]>0);
-  const items = ids.map(id=>({ id, name:catalog.find(x=>x.id===id).name, qty:cart[id] }));
-  let total = ids.reduce((sum, id)=>sum + catalog.find(x=>x.id===id).price * cart[id], 0);
-
-  const order = { 
-    id:'ORD'+Date.now().toString().slice(-8), 
-    items, 
-    total, 
-    customer_name:user.name, 
-    phone:user.phone, 
-    address:user.address, 
-    slot:'Immediate Delivery', 
-    status:'new',
-    lat: coords ? coords.lat : null,
-    lng: coords ? coords.lng : null
-  };
-
-  // 1. SAVE TO DATABASE
-  const { error } = await supabaseClient.from('orders').insert(order);
-  if(error){
-    showToast('Failed to place order. Check connection.');
-    document.getElementById('placeOrderFinal').disabled = false;
-    return;
-  }
-
-  // 2. SAVE ORDER TO LOCAL STORAGE (CUSTOMER ORDER HISTORY)
-  const myOrders = JSON.parse(localStorage.getItem('vegmart_my_orders') || '[]');
-  myOrders.unshift({
-    id: order.id,
-    date: new Date().toISOString(),
-    items: order.items,
-    total: order.total,
-    status: 'Order Placed'
-  });
-  localStorage.setItem('vegmart_my_orders', JSON.stringify(myOrders));
-
-  cart = {};
-  showToast('Order placed successfully!');
-  document.getElementById('closeDrawer').click();
-  renderShop();
-}
-
-function render(){
-  if(loadError){
-    document.getElementById('app').innerHTML = `<div class="error-box">${loadError}</div>`;
-    return;
-  }
-  if(mode==='shop') renderShop();
-  else if(mode==='myorders') renderMyOrders();
-}
-
-// INITIAL APP STARTUP
-if(localStorage.getItem('vegmart_user')){
-  switchToStoreView();
+} else {
+  showView('loginPage');
 }
 </script>
 </body>
