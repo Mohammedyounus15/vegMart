@@ -75,7 +75,6 @@
     font-size:14px; font-weight:700; width:100%; text-align:center;
   }
   .btn-primary{background:var(--accent); color:#fff;}
-  .btn-dark{background:var(--primary); color:#fff;}
 
   /* --- 3. ZEPTO / BLINKIT HEADER --- */
   .app-header{
@@ -84,10 +83,13 @@
   }
   .header-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
   .delivery-eta{font-size:20px; font-weight:900; display:flex; align-items:center; gap:4px;}
-  .delivery-addr{font-size:12px; opacity:0.9; max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .brand-mini-stamp{
-    width:32px; height:32px; border-radius:50%; background:#fff; color:var(--zepto-blue);
-    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; cursor:pointer;
+  .delivery-addr{font-size:12px; opacity:0.9; max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+  /* TOP-RIGHT PROFILE BUTTON */
+  .header-profile-btn{
+    width:38px; height:38px; border-radius:50%; background:#fff; color:var(--zepto-blue);
+    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px;
+    cursor:pointer; border:2px solid rgba(255,255,255,0.4); box-shadow:0 2px 6px rgba(0,0,0,0.1);
   }
 
   /* SEARCH BAR */
@@ -127,15 +129,15 @@
   /* --- 5. BOTTOM NAVIGATION BAR --- */
   .bottom-nav{
     position:fixed; bottom:0; left:0; right:0; height:60px; background:#fff;
-    border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-around;
+    border-top:1px solid var(--line); display:flex; align-items:center; justify-space-around;
     z-index:50;
   }
   .nav-item{
     display:flex; flex-direction:column; align-items:center; gap:2px;
-    font-size:10px; font-weight:600; color:var(--muted); cursor:pointer; border:none; background:none;
+    font-size:11px; font-weight:600; color:var(--muted); cursor:pointer; border:none; background:none;
   }
   .nav-item.active{color:var(--zepto-blue);}
-  .nav-icon{font-size:18px;}
+  .nav-icon{font-size:20px;}
 
   /* CART FAB & DRAWER */
   .cart-fab{
@@ -205,7 +207,10 @@
         <div class="delivery-eta">⚡ 10 minutes</div>
         <div class="delivery-addr" id="headerAddrDisplay">Deliver to: Loading address...</div>
       </div>
-      <div class="brand-mini-stamp" id="secretStamp">V</div>
+      <!-- TOP-RIGHT PROFILE BUTTON -->
+      <div class="header-profile-btn" id="topProfileBtn" title="My Profile">
+        <span id="profileAvatarChar">👤</span>
+      </div>
     </div>
     <div class="search-box">
       <span>🔍</span>
@@ -218,7 +223,7 @@
   </div>
 
   <div class="content-wrap" id="appContent">
-    <!-- Dynamic Products/Orders/Profile render here -->
+    <!-- Dynamic Store Content -->
   </div>
 
   <!-- FLOATING CART BUTTON -->
@@ -226,7 +231,7 @@
     🧺 Basket <span class="cart-badge" id="cartCount">0</span>
   </button>
 
-  <!-- BOTTOM NAVIGATION BAR -->
+  <!-- BOTTOM NAVIGATION BAR (CUSTOMER ONLY) -->
   <div class="bottom-nav">
     <button class="nav-item active" data-tab="shop">
       <span class="nav-icon">🏠</span>
@@ -234,15 +239,7 @@
     </button>
     <button class="nav-item" data-tab="myorders">
       <span class="nav-icon">📦</span>
-      <span>Orders</span>
-    </button>
-    <button class="nav-item" data-tab="profile">
-      <span class="nav-icon">👤</span>
-      <span>Profile</span>
-    </button>
-    <button class="nav-item" data-tab="admin" id="adminNavBtn" style="display:none;">
-      <span class="nav-icon">⚙️</span>
-      <span>Admin</span>
+      <span>My Orders</span>
     </button>
   </div>
 </div>
@@ -282,7 +279,7 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'), 2200);
 }
 
-// SPLASH SCREEN INITIALIZATION (2.5 SECONDS PURPLE SCREEN)
+// SPLASH SCREEN INITIALIZATION (2.2 SECONDS PURPLE SCREEN)
 window.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(()=>{
     const splash = document.getElementById('splashScreen');
@@ -291,10 +288,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
     const user = localStorage.getItem('vegmart_user');
     const urlParams = new URLSearchParams(window.location.search);
     
+    // ADMIN DASHBOARD ACCESSIBLE ONLY VIA URL ?admin=true
     if(urlParams.get('admin') === 'true' || urlParams.get('admin') === '1'){
       currentTab = 'admin';
       document.getElementById('mainView').style.display = 'block';
-      document.getElementById('adminNavBtn').style.display = 'flex';
       loadAll();
     } else if(user){
       document.getElementById('mainView').style.display = 'block';
@@ -322,20 +319,20 @@ document.getElementById('loginBtn').addEventListener('click', ()=>{
   loadAll();
 });
 
-// OWNER DASHBOARD UNLOCK (SECRET 3-TAP GESTURE)
-let stampClicks = 0;
-document.getElementById('secretStamp').addEventListener('click', ()=>{
-  stampClicks++;
-  if(stampClicks >= 3){
-    document.getElementById('adminNavBtn').style.display = 'flex';
-    showToast('Admin Tab Unlocked');
-  }
+// TOP-RIGHT PROFILE BUTTON CLICK EVENT
+document.getElementById('topProfileBtn').addEventListener('click', ()=>{
+  currentTab = 'profile';
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(b => b.classList.remove('active'));
+  render();
 });
 
 async function loadAll(){
   const user = JSON.parse(localStorage.getItem('vegmart_user') || '{}');
   if(user.address){
     document.getElementById('headerAddrDisplay').textContent = `Deliver to: ${user.address}`;
+  }
+  if(user.name){
+    document.getElementById('profileAvatarChar').textContent = user.name.charAt(0).toUpperCase();
   }
 
   try{
@@ -473,7 +470,12 @@ function renderProfile(){
 
   document.getElementById('editAddrBtn').addEventListener('click', ()=>{
     const val = prompt('Update delivery address:', user.address || '');
-    if(val){ user.address = val; localStorage.setItem('vegmart_user', JSON.stringify(user)); renderProfile(); }
+    if(val){ 
+      user.address = val; 
+      localStorage.setItem('vegmart_user', JSON.stringify(user)); 
+      document.getElementById('headerAddrDisplay').textContent = `Deliver to: ${val}`;
+      renderProfile(); 
+    }
   });
   document.getElementById('editPhoneBtn').addEventListener('click', ()=>{
     const val = prompt('Update phone number:', user.phone || '');
