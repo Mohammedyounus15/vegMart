@@ -1,12 +1,16 @@
 // ==========================================
 // 1. SUPABASE CLIENT & STATE
 // ==========================================
-let supabaseClient = null;
-try {
-  supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-} catch (e) {
-  console.warn("Supabase credentials missing or invalid in config.js");
+// Safe initialization to prevent "Identifier already declared" errors
+if (typeof window.supabaseClient === 'undefined') {
+  try {
+    window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  } catch (e) {
+    window.supabaseClient = null;
+  }
 }
+
+var supabaseClient = window.supabaseClient;
 
 let catalog = [];
 let cart = {};
