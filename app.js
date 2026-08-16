@@ -11,7 +11,7 @@ if (window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
   }
 }
 
-// Fallback catalog
+// Fallback produce catalog
 let catalog = [
   { id: 'v1', name: 'Fresh Tomatoes', price: 30, unit: '1 kg', emoji: '🍅', category: 'Vegetables' },
   { id: 'v2', name: 'Farm Potatoes', price: 35, unit: '1 kg', emoji: '🥔', category: 'Vegetables' },
@@ -23,6 +23,25 @@ let catalog = [
 let cart = {};
 let currentTab = 'shop';
 let activeCategory = 'All';
+
+// 15 Dynamic Random Taglines
+const splashTaglines = [
+  "You wanted it, we got it! 🥦",
+  "Farm-fresh crispness at your doorstep 🚜",
+  "Delivering greens faster than you can chop! ⚡",
+  "Straight from the mandi to your kitchen 🧺",
+  "Fresh veggies, zero hassles 🍅",
+  "Your daily dose of fresh greens 🥬",
+  "Handpicked freshness, 10-minute speed ⏱️",
+  "No old stock, only morning harvest 🌿",
+  "Coriander, chillies, and everything fresh! 🌶️",
+  "Crisp carrots, juicy tomatoes, right now 🥕",
+  "Eat clean, eat fresh today 🥗",
+  "Farm produce without the market chaos 🛵",
+  "The fastest way to fresh veggies 🏃‍♂️",
+  "Directly from local fields to your plate 🌾",
+  "Quality tested, freshly delivered! ✨"
+];
 
 // ==========================================
 // 2. HELPER FUNCTIONS
@@ -43,6 +62,13 @@ function showToast(msg) {
 // 3. APP INITIALIZATION & SPLASH
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
+  // Set random tagline on load
+  const tagEl = document.getElementById('splashTagline');
+  if (tagEl) {
+    const randomIndex = Math.floor(Math.random() * splashTaglines.length);
+    tagEl.textContent = splashTaglines[randomIndex];
+  }
+
   setTimeout(() => {
     const splash = document.getElementById('splashScreen');
     if (splash) splash.classList.add('hide');
@@ -60,7 +86,7 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
       document.getElementById('authView').style.display = 'flex';
     }
-  }, 1200);
+  }, 1400);
 });
 
 // Authentication Login
