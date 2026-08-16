@@ -1,108 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>VegMart — Fresh Produce Delivered Fast</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2D1436">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="VegMart">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VegMart — Fresh Produce Delivered Fast</title>
+  
+  <meta name="theme-color" content="#3B1E54">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- External Stylesheet Link -->
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-<div id="splashScreen">
-  <div class="splash-badge">🥬</div>
-  <div class="splash-title">VegMart</div>
-  <div class="splash-tagline" id="splashTagline">Fresh produce, delivered fast.</div>
-  <div class="splash-loader"></div>
-</div>
-
-<div id="authView" class="auth-view" style="display:none;">
-  <div class="auth-card">
-    <div class="auth-emoji">👋</div>
-    <h2>Welcome to VegMart</h2>
-    <p>Enter your details to start ordering fresh vegetables in your area.</p>
-    <div class="field">
-      <label>Full Name</label>
-      <input id="loginName" placeholder="e.g. Ayesha Khan">
-      <div class="field-error-msg" id="errName" style="display:none;">Please enter your name</div>
-    </div>
-    <div class="field">
-      <label>Mobile Number</label>
-      <input id="loginPhone" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric">
-      <div class="field-error-msg" id="errPhone" style="display:none;">Enter a valid 10-digit number</div>
-    </div>
-    <div class="field">
-      <label>Delivery Address</label>
-      <textarea id="loginAddr" rows="2" placeholder="House no, street, locality"></textarea>
-      <div class="field-error-msg" id="errAddr" style="display:none;">Please enter your address</div>
-    </div>
-    <button class="btn btn-primary" id="loginBtn">Start Shopping</button>
+  <!-- SPLASH SCREEN -->
+  <div id="splashScreen">
+    <div class="splash-title">VegMart</div>
+    <div class="splash-sub">Fresh Produce Delivered Fast</div>
+    <div class="splash-loader"></div>
   </div>
-</div>
 
-<div id="mainView" style="display:none;">
-  <div class="app-header">
-    <div class="header-top">
-      <div>
-        <div class="eta-row">
-          <div class="delivery-eta">⚡ 10 mins</div>
-          <div class="eta-chip">Local</div>
-        </div>
-        <div class="location-pill" id="locationPill" title="Tap to change delivery address">
-          <span class="pin">📍</span>
-          <span class="delivery-addr" id="headerAddrDisplay">Loading address…</span>
-          <span class="chev">▼</span>
-        </div>
+  <!-- AUTHENTICATION / LOGIN -->
+  <div id="authView" class="auth-view" style="display:none;">
+    <div class="auth-card">
+      <h2>Welcome to VegMart 👋</h2>
+      <p>Enter your contact details to start shopping fresh produce.</p>
+      
+      <div class="field">
+        <label for="loginName">Full Name</label>
+        <input id="loginName" placeholder="e.g. John Doe">
       </div>
-      <div class="header-profile-btn" id="topProfileBtn" title="My Profile">
-        <span id="profileAvatarChar">👤</span>
+      <div class="field">
+        <label for="loginPhone">Mobile Number</label>
+        <input id="loginPhone" type="tel" placeholder="10-digit mobile number">
       </div>
+      <div class="field">
+        <label for="loginAddr">Delivery Address</label>
+        <textarea id="loginAddr" rows="2" placeholder="House no, street, locality"></textarea>
+      </div>
+      <button class="btn btn-primary" id="loginBtn">Start Shopping</button>
     </div>
-    <div class="search-box">
-      <span>🔍</span>
-      <input id="searchInput" placeholder="Search 'Tomato', 'Spinach'…">
+  </div>
+
+  <!-- MAIN APP STORE -->
+  <div id="mainView" style="display:none;">
+    <header class="app-header">
+      <div class="header-top">
+        <div>
+          <div class="delivery-eta">⚡ 10 minutes</div>
+          <div class="delivery-addr" id="headerAddrDisplay">Deliver to: Loading address...</div>
+        </div>
+        <button class="header-profile-btn" id="topProfileBtn" title="My Profile" aria-label="Profile">
+          <span id="profileAvatarChar">👤</span>
+        </button>
+      </div>
+      <div class="search-box">
+        <span>🔍</span>
+        <input id="searchInput" placeholder="Search for 'Fresh Tomatoes', 'Spinach'...">
+      </div>
+    </header>
+
+    <main class="content-wrap" id="appContent">
+      <!-- Dynamic Catalog / Categories / Profile Injected via app.js -->
+    </main>
+
+    <!-- FLOATING CART BUTTON -->
+    <button class="cart-fab" id="cartFab" style="display:none;">
+      🧺 Basket <span class="cart-badge" id="cartCount">0</span>
+    </button>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="shop">
+        <span class="nav-icon">🏠</span>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" data-tab="categories">
+        <span class="nav-icon">📂</span>
+        <span>Categories</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- CART DRAWER & OVERLAY -->
+  <div class="overlay" id="overlay"></div>
+  <div class="drawer" id="cartDrawer">
+    <div class="drawer-head">
+      <h3 style="font-size:16px; font-weight:800;">Your Cart</h3>
+      <button id="closeDrawer" class="btn-close" aria-label="Close cart">✕</button>
     </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-foot" id="drawerFoot"></div>
   </div>
 
-  <div class="content-wrap" id="appContent"></div>
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast"></div>
 
-  <button class="cart-fab" id="cartFab" style="display:none;">
-    🧺 Basket <span class="cart-badge" id="cartCount">0</span>
-  </button>
-
-  <div class="bottom-nav">
-    <button class="nav-item active" data-tab="shop">
-      <span class="nav-icon">🏠</span><span>Home</span>
-    </button>
-    <button class="nav-item" data-tab="categories">
-      <span class="nav-icon">📂</span><span>Categories</span>
-    </button>
-  </div>
-</div>
-
-<div class="overlay" id="overlay"></div>
-<div class="drawer" id="cartDrawer">
-  <div class="drawer-head">
-    <h3 style="font-size:16px; font-weight:800;">Your Cart</h3>
-    <button class="drawer-close-btn" id="closeDrawer">✕</button>
-  </div>
-  <div class="drawer-body" id="drawerBody"></div>
-  <div class="drawer-foot" id="drawerFoot"></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="app.js"></script>
+  <!-- External JavaScript Modules -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
