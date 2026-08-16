@@ -18,7 +18,6 @@
 </head>
 <body>
 
-<!-- 1. PURPLE SPLASH SCREEN WITH ROTATING TAGLINE -->
 <div id="splashScreen">
   <div class="splash-badge">🥬</div>
   <div class="splash-title">VegMart</div>
@@ -26,7 +25,6 @@
   <div class="splash-loader"></div>
 </div>
 
-<!-- 2. LOGIN VIEW -->
 <div id="authView" class="auth-view" style="display:none;">
   <div class="auth-card">
     <div class="auth-emoji">👋</div>
@@ -38,4 +36,73 @@
       <div class="field-error-msg" id="errName" style="display:none;">Please enter your name</div>
     </div>
     <div class="field">
-      <label>Mobile
+      <label>Mobile Number</label>
+      <input id="loginPhone" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric">
+      <div class="field-error-msg" id="errPhone" style="display:none;">Enter a valid 10-digit number</div>
+    </div>
+    <div class="field">
+      <label>Delivery Address</label>
+      <textarea id="loginAddr" rows="2" placeholder="House no, street, locality"></textarea>
+      <div class="field-error-msg" id="errAddr" style="display:none;">Please enter your address</div>
+    </div>
+    <button class="btn btn-primary" id="loginBtn">Start Shopping</button>
+  </div>
+</div>
+
+<div id="mainView" style="display:none;">
+  <div class="app-header">
+    <div class="header-top">
+      <div>
+        <div class="eta-row">
+          <div class="delivery-eta">⚡ 10 mins</div>
+          <div class="eta-chip">Local</div>
+        </div>
+        <div class="location-pill" id="locationPill" title="Tap to change delivery address">
+          <span class="pin">📍</span>
+          <span class="delivery-addr" id="headerAddrDisplay">Loading address…</span>
+          <span class="chev">▼</span>
+        </div>
+      </div>
+      <div class="header-profile-btn" id="topProfileBtn" title="My Profile">
+        <span id="profileAvatarChar">👤</span>
+      </div>
+    </div>
+    <div class="search-box">
+      <span>🔍</span>
+      <input id="searchInput" placeholder="Search 'Tomato', 'Spinach'…">
+    </div>
+  </div>
+
+  <div class="content-wrap" id="appContent"></div>
+
+  <button class="cart-fab" id="cartFab" style="display:none;">
+    🧺 Basket <span class="cart-badge" id="cartCount">0</span>
+  </button>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" data-tab="shop">
+      <span class="nav-icon">🏠</span><span>Home</span>
+    </button>
+    <button class="nav-item" data-tab="categories">
+      <span class="nav-icon">📂</span><span>Categories</span>
+    </button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <h3 style="font-size:16px; font-weight:800;">Your Cart</h3>
+    <button class="drawer-close-btn" id="closeDrawer">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
